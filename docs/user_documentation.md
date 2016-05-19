@@ -169,6 +169,10 @@ You may have wondered what the `REMOVE_TARGET` job on the ACI tab was good for. 
 
 Pay attention that you may want to uncheck the `KEEP_TARGET` option after you have fixed your role or playbook, as re-using the same target machine throughout testplans and above all throughout test runs could lead to falsified test results.
 
+### Ansible Version
+
+You can define the Ansible version to use for testing and deployment per playbook - also in the test playbook for roles. Simply put a tag or commit id from the official [Ansible Github Repository](https://github.com/ansible/ansible) to the file `aci/ansible_version` within your playbook. Mention that the latest commit you can define is the last commit to the Ansible repository before starting your ACI installation, as ACI will fetch the latest commits from the Ansible repository on startup.
+
 ## Create a custom Testplan
 
 In the Chapter [Configuring the testplan](#Configuring-the-testplan) we have learned that ACI is executing a testplan. We are able to configure the testplan by inserting predefined hooks and adding Serverspec tests. However we are also able to fully define our own testplan. All steps but the Linting can be defined inside the `aci/testplan` file in the playbook to test. The testplan is specific for each playbook, the linting is for the whole artifact. Thus linting is not part of the testplan and executed independently as first step.

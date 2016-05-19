@@ -38,7 +38,7 @@ if [[ $(ls /ansible_config/) ]]; then
 fi
 
 # execute default Docker jenkins start script
-/usr/local/bin/jenkins.sh date # pass 'date' to suppress startup of jenkins
+/usr/local/bin/jenkins.sh date 1>/dev/null # pass 'date' to suppress startup of jenkins
 
 # for any deployment gather vault password
 if [[ $# -lt 1 ]] || [[ "$1" == "--"* ]] || [[ "$1" == 'deploy-aci' ]] || [[ "$1" == 'deploy-agents' ]] || [[ "$1" == 'deploy-prelive' ]]; then
@@ -50,7 +50,7 @@ if [[ $# -lt 1 ]] || [[ "$1" == "--"* ]] || [[ "$1" == 'deploy-aci' ]] || [[ "$1
 fi
 
 # for any deployment despite the prelive deployment gather agents login user if file not already present
-if [[ ! -f /used_config/agent_user.yml ]] || ][[ $# -lt 1 ]] || [[ "$1" == "--"* ]] || [[ "$1" == 'deploy-aci' ]] || [[ "$1" == 'deploy-agents' ]]; then
+if [[ ! -f /used_config/agent_user.yml ]] && ([[ $# -lt 1 ]] || [[ "$1" == "--"* ]] || [[ "$1" == 'deploy-aci' ]] || [[ "$1" == 'deploy-agents' ]]); then
   if [[ -z $ACIA_LOGIN_USER ]]; then
     echo "You have to provide the user for logging onto the ACI agents machine through the ACIA_LOGIN_USER variable."
     exit 1
@@ -64,6 +64,11 @@ if [[ $# -lt 1 ]] || [[ "$1" == "--"* ]]; then
   # 'Install' ACI into Jenkins
   cd /ansible_data/playbooks/setup
   ansible-playbook --vault-password-file /tmp/ansible_vaultpass site.yml
+
+  # update the custom ansible version
+  cd /ansible_custom
+  git fetch
+  cd
 
   # And finally run Jenkins
   exec java $JAVA_OPTS -jar /usr/share/jenkins/jenkins.war $JENKINS_OPTS "$@"

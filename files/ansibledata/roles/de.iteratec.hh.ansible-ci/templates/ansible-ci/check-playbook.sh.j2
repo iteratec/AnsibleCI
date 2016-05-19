@@ -86,6 +86,16 @@ function execute_hook(){
   fi
 }
 
+function switch_ansible_version(){
+  repo_version="$1"
+  prev_dir=$(pwd)
+  cd /ansible_custom
+  git reset --hard "$repo_version" 1>/dev/null
+  git submodule update 1>/dev/null
+  source ./hacking/env-setup -q
+  cd "$prev_dir"
+}
+
 function execute_ansible(){
   run_name=$1
   custom_check_statement=$2
@@ -111,7 +121,14 @@ function execute_ansible(){
     custom_check_statement='changed=0\s*unreachable=0\s*failed=0'
   fi
 
+  # set ansible version
+  if [[ -f aci/ansible_version ]]; then
+    switch_ansible_version "$(cat aci/ansible_version)"
+  fi
+
   # run playbook
+  ansible --version | head -n 1
+  echo ''
   # here I used 'dirty' eval because $custom_ansible_options can contain strings like --extra-vars "var1=one var2=one" which will be substituted to --extra-vars '"var1=one var2=one"'
   if [[ -f ${VAULT_PASSWORD_FILE} ]]; then
     eval "ansible-playbook $custom_ansible_options $ansible_verbosity --vault-password-file \"${VAULT_PASSWORD_FILE}\" aci-playbook.yml | tee ansibleciout.txt"
