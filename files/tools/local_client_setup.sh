@@ -151,7 +151,7 @@ docker run -d \
   -e "ACIA_LOGIN_USER=$(whoami)" \
   -v "$(pwd)/clientconfig":/ansible_config \
   $(cat clientconfig/conf_repository_path) \
-  iteratechh/jenkins 1>/dev/null
+  iteratechh/ansibleci 1>/dev/null
 
 echo ''
 echo 'The AnsibleCI Docker container has been started.'

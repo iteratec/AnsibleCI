@@ -6,14 +6,14 @@ if [[ $# -lt 1 ]] && [[ -z $ANSIBLE_VAULT_PASSWORD ]] && [[ -z $ACIA_LOGIN_USER 
   echo -e '\nFor local usage of ACI create a new, empty workspace folder, run the'
   echo 'following commands inside and follow the instructions: '
   echo ''
-  echo '  docker run --rm iteratechh/jenkins get-local-start-script > aci_local.sh'
+  echo '  docker run --rm iteratechh/ansibleci get-local-start-script > aci_local.sh'
   echo '  chmod +x aci_local.sh'
   echo '  ./aci_local.sh'
   echo ''
   echo 'For deploying ACI on a remote server get further documentation by'
   echo 'running the following command:'
   echo ''
-  echo -e '  docker run --m iteratechh/jenkins help\n'
+  echo -e '  docker run --m iteratechh/ansibleci help\n'
   exit
 fi
 

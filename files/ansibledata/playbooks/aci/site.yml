@@ -24,7 +24,7 @@
     - name: run ACI Docker container
       docker:
         name: aci
-        image: iteratechh/jenkins
+        image: iteratechh/ansibleci
         ports:
           - "{{ aci_server_port }}:8080"
         env:

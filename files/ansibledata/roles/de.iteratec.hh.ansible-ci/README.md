@@ -4,7 +4,7 @@ Installs the AnsibleCI Server.
 
 ## Requirements
 
--   This Role depends on the [iteratechh/jenkins](https://hub.docker.com/r/iteratechh/jenkins/) Docker image.
+-   This Role depends on the [iteratechh/ansibleci](https://hub.docker.com/r/iteratechh/ansibleci/) Docker image.
 -   This Role is meant to be deployed with the de.iteratec.hh.ansible-ci-agent Role, even not on the same machine, and shares some configuration
 
 ## Mandatory Vault Variables
