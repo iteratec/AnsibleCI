@@ -1,0 +1,25 @@
+---
+# could be [server,development]
+# see aci example config
+aci_install_type: development
+
+# The port the ssh daemon of the agent is reachable from
+acia_ssh_port: 22
+# The hostname/ip of the AnsibleCI Agent, the host where Vagrant is running on
+# 172.17.0.1 would be the same host as the AnsibleCI Agent within the Docker network.
+acia_vagrant_host: 172.17.0.1
+# The port of the Vagrant machine on the AnsibleCI Agent
+acia_vagrant_port: 62822
+# the network part of the vagrant machines ip
+acia_vagrant_hostnet_netpart: 172.28.128
+# the client part of the vagrant machines ip
+acia_vagrant_hostnet_clientpart: 3
+# The Vagrant Box used for the tests
+acia_vagrant_box: ubuntu/trusty64
+# The amount of RAM the VM uses
+acia_vagrant_memory: 3072
+
+# port for the squid-deb-proxy container
+acia_squid_port: 8000
+# port for the docker cache proxy
+acia_dmirror_port: 5000

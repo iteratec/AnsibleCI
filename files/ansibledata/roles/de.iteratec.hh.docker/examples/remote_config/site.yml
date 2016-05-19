@@ -1,0 +1,14 @@
+- name: installs docker on the target client
+  hosts: target
+
+  roles:
+    - role: de.iteratec.hh.docker
+      docker_server_domain: localhost
+      docker_server_ip: 127.0.0.1
+      docker_server_port: 4243
+      docker_pki_password: notthatlush
+      docker_pki_countrycode: DE
+      docker_pki_state: Hamburg
+      docker_pki_locality: Hamburg
+      docker_pki_organization: iteratec GmbH
+      docker_client_user_home: /var/jenkins_home

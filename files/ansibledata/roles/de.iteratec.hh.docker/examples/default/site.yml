@@ -1,0 +1,5 @@
+- name: installs docker on the target client
+  hosts: target
+
+  roles:
+    - de.iteratec.hh.docker

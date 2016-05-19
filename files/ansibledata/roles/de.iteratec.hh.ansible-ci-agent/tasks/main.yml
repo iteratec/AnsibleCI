@@ -1,0 +1,67 @@
+---
+
+- name: create squid home path
+  file:
+    path: "{{ SQUID_HOME }}"
+    state: directory
+
+- name: copy squid-deb-proxy configuration
+  copy:
+    src: squid-deb-proxy.conf
+    dest: "{{ SQUID_HOME }}/squid-deb-proxy.conf"
+
+- name: create squid-deb-proxy container
+  docker:
+    name: squid-deb-proxy
+    image: pmoust/squid-deb-proxy
+    pull: always
+    ports:
+      - "{{ acia_squid_port }}:8000"
+    volumes:
+      - "{{ SQUID_HOME }}/squid-deb-proxy.conf:/etc/squid-deb-proxy/squid-deb-proxy.conf"
+    state: started
+    restart_policy: "{{ 'always' if aci_install_type == 'server' else 'no' }}"
+
+- name: add authorized_key for ansible-ci server on vagrant host
+  authorized_key:
+    user: "{{ ansible_user_id }}"
+    key: "{{ ACI_PUBLIC_KEY }}"
+
+- name: create working directory
+  file:
+    path: "{{ WORKING_DIRECTORY }}"
+    state: directory
+
+- name: copy vagrantfile
+  template:
+    src: "{{ item }}.j2"
+    dest: "{{ WORKING_DIRECTORY }}/{{ item }}"
+  with_items:
+    - Vagrantfile
+    - bootstrap.sh
+
+- name: create vagrants authorized_keys to allow access from ACI server
+  copy:
+    content: "{{ ACI_PUBLIC_KEY }}"
+    dest: "{{ WORKING_DIRECTORY }}/vagrant_authorized_key"
+    mode: 0640
+
+- name: create dedicated SSH private key for VM
+  copy:
+    content: "{{ ACIA_PRIVATE_KEY }}"
+    dest: "{{ WORKING_DIRECTORY }}/id_rsa"
+    mode: 0600
+
+- name: copy docker mirror CA certificate to vagrant directory
+  copy:
+    src: "{{ DMIRROR_HOME }}/ca.pem"
+    dest: "{{ WORKING_DIRECTORY }}/ca.crt"
+    remote_src: yes
+    mode: 0440
+
+- name: copy ansible-ci-vagrant script
+  become: yes
+  template:
+    src: ansible-ci-vagrant.j2
+    dest: /usr/local/bin/ansible-ci-vagrant
+    mode: 0755

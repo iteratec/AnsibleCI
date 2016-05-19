@@ -1,0 +1,2 @@
+---
+DOCKER_PKI_DIR: "{{ ansible_user_dir }}/.ansible-data/thomass.docker/pki"

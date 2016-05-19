@@ -1,0 +1,14 @@
+#!/bin/bash
+
+if [[ -z $1 ]]
+  then exit
+fi
+
+cd "{{ ansible_env.HOME }}/.ansible-data/de.iteratec.hh.ansible-ci-agent/vagrant"
+
+case "$1" in
+  up) vagrant up ;;
+  halt) vagrant halt ;;
+  destroy) vagrant destroy -f ;;
+  *) echo 'Call with vagrant option [up|halt|destroy]' ;;
+esac

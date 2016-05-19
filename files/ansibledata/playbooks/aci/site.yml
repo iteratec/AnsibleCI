@@ -1,0 +1,33 @@
+---
+- name: install Docker on ACI Server
+  hosts: server
+
+  roles:
+    - de.iteratec.hh.docker
+
+- name: install ACI Server
+  hosts: server
+  become: yes
+
+  tasks:
+
+    - name: create configuration directory
+      file:
+        path: /etc/ansibleci
+        state: directory
+
+    - name: copy configuration to server
+      copy:
+        src: /used_config
+        dest: /etc/ansibleci/configuration
+
+    - name: run ACI Docker container
+      docker:
+        name: aci
+        image: iteratechh/jenkins
+        ports:
+          - "{{ aci_server_port }}:8080"
+        env:
+          ANSIBLE_VAULT_PASSWORD:"{{ lookup('file', '/tmp/ansible_vaultpass') }}"
+        volumes:
+          - "/opt/ansibleci/configuration:/ansible_config"

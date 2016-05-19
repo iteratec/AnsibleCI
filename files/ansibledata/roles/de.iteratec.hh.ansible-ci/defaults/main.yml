@@ -1,0 +1,99 @@
+---
+
+# General configuration
+# =====================
+
+# could be [server,development]
+# development means to have ACI gathering data directly from a dev computer
+# instead of repositories (see documentation)
+aci_install_type: development
+
+# Admin name for the AnsibleCI GUI
+aci_admin_name: Admin
+# Admin password for the AnsibleCI GUI
+# is 'ACI_ADMIN_PASSWORD' in the Vault
+
+# Server specific configuration
+# =============================
+
+# The protocol the AnsibleCI Server is reachable (http/https)
+aci_server_protocol: 'http'
+# The Domain of the AnsibleCI Server (e.g. example.com)
+aci_server_domain: localhost
+# The IP address of the AnsibleCI Server
+aci_server_ip: 127.0.0.1
+# The port on the AnsibleCI Server under which Jenkins is reachable
+aci_server_port: 24680
+
+# Diese Zahl limitiert die Anzahl der gleichzeitig zu testenden Roles.
+# Sollen mehr Roles verarbeitet werden, muss die Zahl höher gesetzt werden,
+# da sich die Role-Jobs ansonsten gegenseitig blockieren (deadlock!).
+aci_executor_count: 75
+
+# mail configuration
+aci_admin_email: admin@ansibleci.de
+aci_smtp_host: localhost
+aci_smtp_port: 25
+aci_smtp_auth_user: "{{ aci_admin_email }}"
+aci_smtp_auth_password: "{{ SMTP_PASSWORD_HASH |default('') }}"
+aci_smtp_reply_to: "{{ aci_admin_email }}"
+
+# Test specific configuration
+# ===========================
+
+# A list of ansible-lint IDs to be excluded
+aci_lint_skip_list:
+  - ANSIBLE0004
+
+
+# Agent specific configuration
+# ============================
+
+# The port the ssh daemon of the agent is reachable from
+acia_ssh_port: 22
+# The hostname/ip of the AnsibleCI Agent, the host where Vagrant is running on.
+# 172.17.0.1 would be the same host as the AnsibleCI Agent within the Docker network.
+acia_vagrant_host: 172.17.0.1
+# The port of the Vagrant machine on the AnsibleCI Agent
+acia_vagrant_port: 62822
+
+
+# Repository specific configuration
+# =================================
+
+# example for development repository definition
+aci_repository:
+  - name: defaultRoles
+  - name: defaultPlaybooks
+    roles_path_from:
+      - defaultRoles
+
+# # example for servers repository definition
+# aci_repository:
+#     # ein Referenzname
+#   - name: example
+#     # Die vollständige URL des Repositories
+#     url: "ssh://<user>@<repo-server-url>:<port>/<pathto>/<repository>.git"
+#     # Der SSH-Key zum Anmelden am Repository
+#     id_rsa: "{{ ID_RSA_EXAMPLE }}"
+#     # Der zu testende Branch des Repositories
+#     branch: testing # 'master' is default
+#     # Der Pfad innerhalb des Repositories zu den Roles
+#     subpath_roles: None
+#     # Der Pfad innerhalb des Repositories zu den Playbooks
+#     subpath_playbooks: None
+#     # Die Repositories, aus welchem die Roles für die Playbooks kommen
+#     roles_path_from:
+#       - example # optional if roles repository is the same as playbook repository
+#     # Die Weboberfläche des Git Repository Servers
+#     browser_url: https://<eg-gitlab-url>
+#     # Die Version des Repository Browsers
+#     browser_version: <eg-7.12>
+
+# Den Nutzer, den AnsibleCI gegenüber dem Git Repository einnimmt
+aci_repository_global_user_name: AnsibleCI Admin
+# Die E-Mail-Adresse, die AnsibleCI gegenüber dem Git Repository einnimmt
+aci_repository_global_user_email: "{{ aci_admin_email }}"
+
+# vault variable defaults
+PASSWORDS: []

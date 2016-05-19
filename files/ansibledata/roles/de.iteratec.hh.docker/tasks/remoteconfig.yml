@@ -1,0 +1,79 @@
+---
+
+- name: create /root/.docker dir
+  become: yes
+  file:
+    path: "/root/.docker"
+    state: directory
+
+- name: link pki files to /root/.docker
+  become: yes
+  file:
+    src: "{{ DOCKER_PKI_DIR }}/{{ item }}.pem"
+    dest: "/root/.docker/{{ item }}.pem"
+    state: link
+    mode: 0600
+  with_items:
+    - ca
+    - server-key
+    - server-cert
+
+- name: let Docker daemon listen to all interfaces (< ubuntu 15.04)
+  become: yes
+  lineinfile:
+    dest: /etc/default/docker
+    regexp: "^DOCKER_OPTS=.*$"
+    line: "DOCKER_OPTS=' --tlsverify --tlscacert=/root/.docker/ca.pem --tlscert=/root/.docker/server-cert.pem --tlskey=/root/.docker/server-key.pem -H=0.0.0.0:{{ docker_server_port }} -H unix:///var/run/docker.sock'"
+  register: daemonconfig1
+
+- name: let Docker daemon listen to all interfaces (>= ubuntu 15.04)
+  become: yes
+  replace:
+    dest: /lib/systemd/system/docker.service
+    regexp: '^(ExecStart=/usr/bin/docker daemon) .*$'
+    replace: '\1 --tlsverify --tlscacert=/root/.docker/ca.pem --tlscert=/root/.docker/server-cert.pem --tlskey=/root/.docker/server-key.pem -H=0.0.0.0:{{ docker_server_port }} -H fd://'
+  when: ansible_distribution_version | version_compare('15.04', '>=')
+  register: daemonconfig2
+
+- name: reload docker daemon config
+  become: yes
+  command: systemctl daemon-reload
+  when: daemonconfig2 | changed
+
+- name: restart docker
+  become: yes
+  service:
+    name: docker
+    state: restarted
+  when: (daemonconfig1 | changed) or (daemonconfig2 | changed) or (pkiconfig | changed)
+
+- name: create directory for client certs on control machine
+  delegate_to: localhost
+  file:
+    path: "{{ docker_pki_client_files_path }}"
+    state: directory
+    mode: 0700
+
+- name: fetch client key and cert
+  fetch:
+    src: "{{ DOCKER_PKI_DIR }}/{{item }}.pem"
+    dest: "{{ docker_pki_client_files_path }}/{{item }}.pem"
+    flat: yes
+    mode: 0600
+  with_items:
+    - client-key
+    - client-cert
+    - ca
+
+- name: create local alias for remote docker
+  delegate_to: localhost
+  lineinfile:
+    dest: "~/.bashrc"
+    regexp: 'alias {{ docker_remote_alias }}'
+    line: 'alias {{ docker_remote_alias }}="docker --tlsverify --tlscacert={{ docker_pki_client_files_path }}/ca.pem --tlscert={{ docker_pki_client_files_path }}/client-cert.pem --tlskey={{ docker_pki_client_files_path }}/client-key.pem -H=tcp://{{ docker_server_domain }}:{{ docker_server_port }}"'
+    state: present
+  when: docker_create_remote_alias
+
+- name: create return value
+  set_fact:
+    docker_remote_connection_args: "--tlsverify --tlscacert={{ docker_pki_client_files_path }}/ca.pem --tlscert={{ docker_pki_client_files_path }}/client-cert.pem --tlskey={{ docker_pki_client_files_path }}/client-key.pem -H=tcp://{{ docker_server_domain }}:{{ docker_server_port }}"

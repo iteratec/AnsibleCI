@@ -1,0 +1,4 @@
+#!/bin/bash
+
+cd /ansible_data/playbooks/aci
+ansible-playbook --vault-password-file /tmp/ansible_vaultpass -i /used_config/aci.inventory $* site.yml

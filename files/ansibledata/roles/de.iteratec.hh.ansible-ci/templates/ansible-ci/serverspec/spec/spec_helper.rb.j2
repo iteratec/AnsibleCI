@@ -1,0 +1,17 @@
+require 'serverspec'
+require 'net/ssh'
+
+set :backend, :ssh
+
+set :sudo_password, 'vagrant'
+
+host = '{{ acia_vagrant_host }}'
+
+options = Net::SSH::Config.for(host)
+
+options[:user] = 'vagrant'
+options[:password] = 'vagrant'
+options[:port] = {{ acia_vagrant_port }}
+
+set :host,        options[:host_name] || host
+set :ssh_options, options
