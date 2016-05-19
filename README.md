@@ -1,43 +1,22 @@
-# iteratech/jenkins
+# ![AnsibleCI](docs/images/aci.png) AnsibleCI
 
-This is a library/jenkins with an additional Ansible installed. It is used for ansible-ci.
+AnsibleCI (ACI) is a tool which will automatically test Ansible roles and playbooks from your repositories. It can be run locally for test-driven-development of Ansible artifacts or on a server enabling a Continuous Deployment Pipeline for your Ansible artifacts.
 
-## Local Installation
+## Local Usage
 
-Run the following instructions and follow the instructions.
-
-```
-docker run --rm iteratechh/jenkins get-local-start-script > aci_local.sh
-chmod +x aci_local.sh
-./aci_local.sh
-```
-
-## Server Installation
-
-### 1 Configuration
-
-Get the example configuration and modify according your needs:
+For local usage simply run the following command and follow the instructions.
 
 ```
-docker run --rm -v "$(pwd)":/config iteratechh/jenkins cp -a /example_config /config
-mv example_config ansible_config
+docker run --rm iteratechh/ansibleci
 ```
 
-### 2 Start ACI with configuration
+## Documentation
 
-```
-#!/bin/bash
-echo 'Vault Password: '
-read -s avp
-docker run -d --name aci -p 8081:8080 --env "ANSIBLE_VAULT_PASSWORD=$avp"
-  -v /path/to/ansible_config:/ansible_config
-  -v /path/to/repository:/var/jenkins_home/workspace/develop/<repo-label>
-  iteratechh/jenkins
+- [Server Installation](docs/server_installation.md)
+- [User Documenation](docs/user_documentation.md)
 
-```
+## Authors
 
-### 3 Deploy ACI Agent
+AnsibleCI was created by Thomas Steinbach (thomass/aikq/de) and is sponsored by [iteratec GmbH](http://www.iteratec.de/)
 
-```
-docker exec -it aci deploy-agents
-```
+The whole work is licenced under GNU GPL v3.
