@@ -13,7 +13,7 @@
 # $ARTIFACT_NAME    - The name of the Ansible subdirectory (to roles or playbook) to test
 # $ROLES_PATH       - The value of the ansible_roles variable used in the ansible.cfg
 # $LOG_STDOUTERR    - This variable can be set by the user to make Ansible printing STDOUT/STDERR on the console.
-# $ANSIBLE_VERBOSE  - This variable can be set by the user to make Ansible output more verbosse (-vv).
+# $ANSIBLE_VERBOSE  - This variable can be set by the user to make Ansible output more verbose (-vvv).
 
 # get the working dir of the script
 BASEDIR=$(dirname "$0")
@@ -30,7 +30,7 @@ TESTPLAN_FILE="${PLAYBOOKDIR}/aci/testplan"
 CHECK_PLAYBOOK_RESULT="Playbook ${PLAYBOOK_FQN}: \t"
 
 if [[ $ANSIBLE_VERBOSE = 'true' ]]; then
-  ansible_verbosity='-vv'
+  ansible_verbosity='-vvv'
 fi
 
 # BEGIN DECLARE FUNCTIONS
