@@ -171,7 +171,11 @@ Pay attention that you may want to uncheck the `KEEP_TARGET` option after you ha
 
 ### Ansible Version
 
-You can define the Ansible version to use for testing and deployment per playbook - also in the test playbook for roles. Simply put a tag or commit id from the official [Ansible Github Repository](https://github.com/ansible/ansible) to the file `aci/ansible_version` within your playbook. Mention that the latest commit you can define is the last commit to the Ansible repository before starting your ACI installation, as ACI will fetch the latest commits from the Ansible repository on startup.
+You can define the Ansible version to use for testing and deployment. For setting the Ansible version to use for the whole repository, simply put a tag or commit id from the official [Ansible Github Repository](https://github.com/ansible/ansible) to the file `aci/ansible_version` within your repository.
+
+You can also define an Ansible version specific for a role or playbook, which would override the repository setting. Then you have to put the commit id/tag into the `aci/ansible_version` within your (role test) playbook.
+
+Mention that the latest commit you can define is the last commit to the Ansible repository before starting your ACI installation, as ACI will fetch the latest commits from the Ansible repository on startup.
 
 ## Create a custom Testplan
 

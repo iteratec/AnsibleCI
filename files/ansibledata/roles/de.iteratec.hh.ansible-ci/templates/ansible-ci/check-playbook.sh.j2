@@ -8,6 +8,7 @@
 # Following Variables must be declared in the calling Jenkins Job:
 #
 # $JENKINS_HOME     - The Jenkins home directory
+# $WORKSPACE        - The root of the git repository
 # $REPO_LABEL       - The label of the git repository used in ACI.
 # $ARTIFACT_NAME    - The name of the Ansible subdirectory (to roles or playbook) to test
 # $ROLES_PATH       - The value of the ansible_roles variable used in the ansible.cfg
@@ -124,6 +125,8 @@ function execute_ansible(){
   # set ansible version
   if [[ -f aci/ansible_version ]]; then
     switch_ansible_version "$(cat aci/ansible_version)"
+  elif [[ -f "${WORKSPACE}/aci/ansible_version" ]]; then
+    switch_ansible_version "$(cat ${WORKSPACE}/aci/ansible_version)"
   fi
 
   # run playbook
