@@ -87,10 +87,24 @@ function execute_hook(){
   fi
 }
 
+function switch_ansible_branch(){
+  repo_branch="$1"
+  prev_dir=$(pwd)
+  cd /ansible_custom
+  git reset --hard HEAD
+  git fetch
+  git checkout "$repo_branch" 1>/dev/null
+  git submodule update 1>/dev/null
+  source ./hacking/env-setup -q
+  cd "$prev_dir"
+}
+
 function switch_ansible_version(){
   repo_version="$1"
   prev_dir=$(pwd)
   cd /ansible_custom
+  git reset --hard HEAD
+  git merge
   git reset --hard "$repo_version" 1>/dev/null
   git submodule update 1>/dev/null
   source ./hacking/env-setup -q
@@ -120,6 +134,13 @@ function execute_ansible(){
     unset custom_check_statement
   elif [[ $custom_check_statement == 'IDEMPOTENCY' ]]; then
     custom_check_statement='changed=0\s*unreachable=0\s*failed=0'
+  fi
+
+  # set ansible branch
+  if [[ -f aci/ansible_branch ]]; then
+    switch_ansible_branch "$(cat aci/ansible_branch)"
+  elif [[ -f "${WORKSPACE}/aci/ansible_branch" ]]; then
+    switch_ansible_branch "$(cat ${WORKSPACE}/aci/ansible_branch)"
   fi
 
   # set ansible version

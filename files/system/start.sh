@@ -58,6 +58,13 @@ if [[ ! -f /used_config/agent_user.yml ]] && ([[ $# -lt 1 ]] || [[ "$1" == "--"*
   echo "acia_login_user: $ACIA_LOGIN_USER" > /used_config/agent_user.yml
 fi
 
+# checkout custom ansible repository
+if [[ -f /ansible_config/conf_ansible_repository ]]; then
+  cd /ansible_custom
+  rm -rf * .[a-zA-Z0-9]*
+  git clone "$(cat /ansible_config/conf_ansible_repository | head -n 1)" --recursive .
+fi
+
 # initiate default startup if no other commands than jenkins parameters are passed...
 if [[ $# -lt 1 ]] || [[ "$1" == "--"* ]]; then
 

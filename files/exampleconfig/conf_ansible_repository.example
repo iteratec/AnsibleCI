@@ -1,0 +1,2 @@
+Create a file called 'conf_ansible_repository' with just the URL of the custom
+repository you want to use when defining custom versions for your playbooks.

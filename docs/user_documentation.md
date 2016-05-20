@@ -169,13 +169,17 @@ You may have wondered what the `REMOVE_TARGET` job on the ACI tab was good for. 
 
 Pay attention that you may want to uncheck the `KEEP_TARGET` option after you have fixed your role or playbook, as re-using the same target machine throughout testplans and above all throughout test runs could lead to falsified test results.
 
-### Ansible Version
+### Custom Ansible Version / Version
 
 You can define the Ansible version to use for testing and deployment. For setting the Ansible version to use for the whole repository, simply put a tag or commit id from the official [Ansible Github Repository](https://github.com/ansible/ansible) to the file `aci/ansible_version` within your repository.
 
 You can also define an Ansible version specific for a role or playbook, which would override the repository setting. Then you have to put the commit id/tag into the `aci/ansible_version` within your (role test) playbook.
 
-Mention that the latest commit you can define is the last commit to the Ansible repository before starting your ACI installation, as ACI will fetch the latest commits from the Ansible repository on startup.
+Analogous to the Ansible version you can define the branch in the `aci/ansible_branch` file. If both, the branch and the version, are supplied, the branch becomes applied first.
+
+### Custom Ansible Repository
+
+You can also define your custom Ansible repository to use for testing and deployment. This setting can just be done per ACI installation. To activate you have to provide the URL of the repository to the first line of the file `conf_ansible_repository` within your configuration directory mounted to the `/ansible_config` directory inside the ACI Docker container.
 
 ## Create a custom Testplan
 
