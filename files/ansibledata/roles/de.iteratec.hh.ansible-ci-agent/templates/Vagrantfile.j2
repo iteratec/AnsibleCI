@@ -2,8 +2,7 @@ Vagrant.configure("2") do |config|
   config.vm.hostname = "ansibleciagent"
   config.vm.box = "{{ acia_vagrant_box }}"
   config.vm.provision :shell, path: "bootstrap.sh"
-  config.vm.network :forwarded_port, guest: 22, host: {{ acia_vagrant_port }}
-  config.vm.network "private_network", ip:"{{ acia_vagrant_hostnet_netpart }}.{{ acia_vagrant_hostnet_clientpart }}", hostsupdater: "skip"
+  config.vm.network "private_network", ip:"{{ acia_vagrant_ip }}", hostsupdater: "skip"
   config.vm.provider "virtualbox" do |vb|
     vb.memory = {{ acia_vagrant_memory }}
     vb.cpus = 2

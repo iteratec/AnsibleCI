@@ -65,8 +65,8 @@ function execute_hook(){
     fi
 
     chmod +x "${hook_filepath}"
-    scp -P '{{ acia_vagrant_port }}' "${hook_filepath}" "vagrant@{{ acia_vagrant_host }}:/tmp/${hook_file}.sh"
-    ssh -n -p '{{ acia_vagrant_port }}' 'vagrant@{{ acia_vagrant_host }}' "/tmp/${hook_file}.sh"; rc=$?
+    scp -P '{{ acia_vagrant_port }}' "${hook_filepath}" "vagrant@{{ acia_vagrant_ip }}:/tmp/${hook_file}.sh"
+    ssh -n -p '{{ acia_vagrant_port }}' 'vagrant@{{ acia_vagrant_ip }}' "/tmp/${hook_file}.sh"; rc=$?
 
     if [[ $rc != 0 ]]; then
       echo -e "\n-> Hook execution ${hook_file} FAILED"
@@ -284,7 +284,7 @@ ssh -o StrictHostKeyChecking=no -p "{{ acia_ssh_port }}" "{{ acia_login_user }}@
 
 # start remote vagrant target and add to known_hosts file
 ssh -p '{{ acia_ssh_port }}' '{{ acia_login_user }}@{{ acia_vagrant_host }}' ansible-ci-vagrant up 1> /dev/null
-ssh -o StrictHostKeyChecking=no -p '{{ acia_vagrant_port }}' 'vagrant@{{ acia_vagrant_host }}' date &> /dev/null
+ssh -o StrictHostKeyChecking=no -p '{{ acia_vagrant_port }}' 'vagrant@{{ acia_vagrant_ip }}' date &> /dev/null
 echo '< ...done >'
 
 # set ansible human log
@@ -308,7 +308,7 @@ fi
 if [[ -f inventory ]]; then
   mv inventory inventory.bak
 fi
-echo "vagrant_target ansible_ssh_host={{ acia_vagrant_host }} ansible_ssh_port={{ acia_vagrant_port }} ansible_ssh_user=vagrant ansible_become_pass=vagrant" > inventory
+echo "acia.vm ansible_ssh_host={{ acia_vagrant_ip }} ansible_ssh_port={{ acia_vagrant_port }} ansible_ssh_user=vagrant ansible_become_pass=vagrant" > inventory
 
 # append requirement to head of all serverspec files
 find . -type f -name "*_spec.rb" | while read -r currentfile; do

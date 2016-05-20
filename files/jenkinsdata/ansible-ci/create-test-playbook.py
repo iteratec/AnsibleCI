@@ -1,5 +1,5 @@
 # This file reads an example.yml Playbook from the command line,
-# substitutes the 'hosts' variables in all plays with 'vagrant_target' and writes
+# substitutes the 'hosts' variables in all plays with 'acia.vm' and writes
 # the result to a 'playbook.yml' file in the execution directory
 
 from sys import argv
@@ -21,7 +21,7 @@ if os.path.isfile('aci/varsfilesexcludes'):
 data = yaml.load(content)
 
 for play in data:
-  play['hosts'] = 'vagrant_target'
+  play['hosts'] = 'acia.vm'
   if 'vars_files' in play:
       playbook_vars_files = list(play['vars_files'])
       for vars_files_entry in playbook_vars_files:

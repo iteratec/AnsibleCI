@@ -1,5 +1,10 @@
 ---
 
+# can't use lineinfile as of bug https://github.com/ansible/ansible/issues/13981
+- name: add ACIA VM IP as 'acia.vm' to /etc/hosts file
+  become: yes
+  shell: grep -q 'acia.vm' /etc/hosts || echo "{{ acia_vagrant_ip }} acia.vm" >> /etc/hosts
+
 - name: create nescessary directories in /var/jenkins_home
   file:
     path: "{{ item }}"

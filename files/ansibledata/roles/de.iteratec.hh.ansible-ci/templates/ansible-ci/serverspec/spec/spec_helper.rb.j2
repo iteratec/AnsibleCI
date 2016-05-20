@@ -5,7 +5,7 @@ set :backend, :ssh
 
 set :sudo_password, 'vagrant'
 
-host = '{{ acia_vagrant_host }}'
+host = '{{ acia_vagrant_ip }}'
 
 options = Net::SSH::Config.for(host)
 

@@ -9,6 +9,7 @@ RUN apt-get update && \
       python-pip \
       python-apt \
       python-docker \
+      sudo \
       git \
       ruby \
       ruby-dev \
@@ -82,6 +83,10 @@ COPY files/system/deploy-aci /usr/local/bin/deploy-aci
 COPY files/system/deploy-agents /usr/local/bin/deploy-agents
 COPY files/system/deploy-prelive /usr/local/bin/deploy-prelive
 COPY files/tools/local_client_setup.sh /tools/local_client_setup.sh
+
+# add jenkins to sudoers
+RUN usermod -a -G sudo jenkins && \
+    echo 'jenkins ALL=(ALL) NOPASSWD: ALL' > /etc/sudoers.d/jenkins-nopasswd
 
 # set rights and permissions
 RUN chown -R jenkins:jenkins /used_config && \

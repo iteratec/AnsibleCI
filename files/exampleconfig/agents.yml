@@ -6,14 +6,14 @@ aci_install_type: development
 # The port the ssh daemon of the agent is reachable from
 acia_ssh_port: 22
 # The hostname/ip of the AnsibleCI Agent, the host where Vagrant is running on
+# The host must be the same machine as the ACI Jenkins is running on, so that ACI
+# can access the virtual test machine directly per IP.
 # 172.17.0.1 would be the same host as the AnsibleCI Agent within the Docker network.
 acia_vagrant_host: 172.17.0.1
+# The IP address of the ACIA vagrant virtual machine
+acia_vagrant_ip: 172.28.128.3
 # The port of the Vagrant machine on the AnsibleCI Agent
-acia_vagrant_port: 62822
-# the network part of the vagrant machines ip
-acia_vagrant_hostnet_netpart: 172.28.128
-# the client part of the vagrant machines ip
-acia_vagrant_hostnet_clientpart: 3
+acia_vagrant_port: 22
 # The Vagrant Box used for the tests
 acia_vagrant_box: ubuntu/trusty64
 # The amount of RAM the VM uses
