@@ -124,6 +124,10 @@ Sometimes you need to provide more information to Ansible when testing your role
 
 You can provide variables specific for the test run to the playbook, defining them wihtin the playbooks `aci/vars.yml` file. If this file exist it will automatically be included to every plays `vars_files` statement.
 
+### Hostname of the test machine
+
+The hostname of the target test VM is **acia.vm**. You can't change the host name but it is good to know the hostname, as you playbooks may require it for proper connections. However you don't need to define that hostname in you (test) playbooks, as ACI will automatically replace the target host temporarily before every test execution.
+
 ### Vault Files
 
 You can set the vault password for each playbook during the configuration and installation of ACI itself. Thus you have to re-run the ACI installation playbook for changes taking effect.
