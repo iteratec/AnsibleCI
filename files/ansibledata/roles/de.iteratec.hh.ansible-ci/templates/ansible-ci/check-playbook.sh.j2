@@ -329,7 +329,7 @@ fi
 if [[ -f inventory ]]; then
   mv inventory inventory.bak
 fi
-echo "acia.vm ansible_ssh_host={{ acia_vagrant_ip }} ansible_ssh_port={{ acia_vagrant_port }} ansible_ssh_user=vagrant ansible_become_pass=vagrant" > inventory
+echo "acia.vm ansible_ssh_port={{ acia_vagrant_port }} ansible_ssh_user=vagrant ansible_become_pass=vagrant" > inventory
 
 # append requirement to head of all serverspec files
 find . -type f -name "*_spec.rb" | while read -r currentfile; do
