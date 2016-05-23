@@ -10,15 +10,22 @@
     src: squid-deb-proxy.conf
     dest: "{{ SQUID_HOME }}/squid-deb-proxy.conf"
 
+- name: create squid-deb-proxy DVC
+  docker:
+    name: squid-deb-proxy-data
+    image: pmoust/squid-deb-proxy
+    volumes:
+      - "{{ SQUID_HOME }}/squid-deb-proxy.conf:/etc/squid-deb-proxy/squid-deb-proxy.conf"
+    state: present
+
 - name: create squid-deb-proxy container
   docker:
     name: squid-deb-proxy
     image: pmoust/squid-deb-proxy
-    pull: always
     ports:
       - "{{ acia_squid_port }}:8000"
-    volumes:
-      - "{{ SQUID_HOME }}/squid-deb-proxy.conf:/etc/squid-deb-proxy/squid-deb-proxy.conf"
+    volumes_from:
+      - squid-deb-proxy-data
     state: started
     restart_policy: "{{ 'always' if aci_install_type == 'server' else 'no' }}"
 
