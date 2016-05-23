@@ -91,7 +91,7 @@ function switch_ansible_branch(){
   repo_branch="$1"
   prev_dir=$(pwd)
   cd /ansible_custom
-  git reset --hard HEAD
+  git reset --hard origin/HEAD
   git fetch
   git checkout "$repo_branch" 1>/dev/null
   git submodule update 1>/dev/null
@@ -103,7 +103,7 @@ function switch_ansible_version(){
   repo_version="$1"
   prev_dir=$(pwd)
   cd /ansible_custom
-  git reset --hard HEAD
+  git reset --hard origin/HEAD
   git merge
   git reset --hard "$repo_version" 1>/dev/null
   git submodule update 1>/dev/null
@@ -305,7 +305,7 @@ ssh -o StrictHostKeyChecking=no -p "{{ acia_ssh_port }}" "{{ acia_login_user }}@
 
 # start remote vagrant target and add to known_hosts file
 ssh -p '{{ acia_ssh_port }}' '{{ acia_login_user }}@{{ acia_vagrant_host }}' ansible-ci-vagrant up 1> /dev/null
-ssh -o StrictHostKeyChecking=no -p '{{ acia_vagrant_port }}' 'vagrant@{{ acia_vagrant_ip }}' date &> /dev/null
+ssh -o StrictHostKeyChecking=no -p '{{ acia_vagrant_port }}' 'vagrant@acia.vm' date &> /dev/null
 echo '< ...done >'
 
 # set ansible human log
