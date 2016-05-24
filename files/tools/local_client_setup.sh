@@ -2,6 +2,13 @@
 
 set -e
 
+regex='^[4-9].*'
+if [[ $BASH_VERSION =~ $regex ]]; then
+  oldbash=false
+else
+  oldbash=true
+fi
+
 if [[ $(docker inspect -f "{{ .State.Paused }}" aci 2>/dev/null) ]]; then
 
   mustDeployAgents=false
@@ -33,8 +40,8 @@ fi
 if [[ ! -d clientconfig ]]; then
   echo 'It seems to be the first time running ACI at this workspace location:'
   echo -e "\n\t$(pwd)\n"
-  read -p 'Do you want to create a new workspace in this directory? (y/n): ' -e -i 'n' createworkspace
-  if [[ "$createworkspace" != 'y' ]]; then
+  read -p 'Do you want to create a new workspace in this directory? (y/N): ' createworkspace
+  if [[ -z "$createworkspace" ]] || [[ "$createworkspace" != 'y' ]]; then
     echo 'exiting...'
     exit
   else
@@ -62,7 +69,8 @@ if [[ ! -f clientconfig/repositories.yml ]]; then
     unset playbookspath
     unset rolesfrom
     echo ''
-    read -p ' An arbitrary but unique label identifying your repository: ' -e -i 'default' repolabel
+    read -p ' An arbitrary but unique label identifying your repository [default]: ' repolabel
+    [ -z "$repolabel" ] && var='default'
     read -p ' The relative subpath in the repo containing the roles (leave blank if root or none): ' rolespath
     read -p ' The relative subpath in the repo containing the playbooks (leave blank if root or none): ' playbookspath
     read -p ' A list of repository labels to gather roles from (leave blank if none): ' rolesfrom
@@ -78,8 +86,8 @@ if [[ ! -f clientconfig/repositories.yml ]]; then
       done
     fi
 
-    read -p ' Would you add one more repository? (y/n): ' -e -i 'n' oneMoreRepo
-    if [[ "$oneMoreRepo" != 'y' ]]; then
+    read -p ' Would you add one more repository? (y/n): ' oneMoreRepo
+    if [[ -z "$oneMoreRepo" ]] || [[ "$oneMoreRepo" != 'y' ]]; then
       addNextRepo=false
     fi
   done
@@ -99,7 +107,11 @@ fi
 for repo in $(grep 'name: ' clientconfig/repositories.yml | cut -c 11-); do
   set +e; grep -q "/var/jenkins_home/workspace/develop/$repo" clientconfig/conf_repository_path; rc=$?; set -e
   if [[ $rc != 0 ]]; then
-    read -p " Please provide the absolute path to the repository with the label '${repo}': " -e -i "${HOME}/" repopath
+    if [[ "$oldbash" = 'true' ]]; then
+      read -p " Please provide the absolute path to the repository with the label '${repo}': " repopath
+    else
+      read -p " Please provide the absolute path to the repository with the label '${repo}': " -e -i "${HOME}/" repopath
+    fi
     echo "-v $repopath:/var/jenkins_home/workspace/develop/$repo" >> clientconfig/conf_repository_path
   fi
 done
