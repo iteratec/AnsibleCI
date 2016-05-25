@@ -1,0 +1,25 @@
+---
+- name: update python-pip
+  become: yes
+  pip:
+    name: pip
+    state: latest
+
+- name: install python docker library
+  become: yes
+  pip:
+    name: docker-py
+    state: latest
+
+- name: create docker alias [d,dbox] for quick use of docker functionality
+  lineinfile:
+    dest: "{{ ansible_env.HOME }}/.bashrc"
+    line: "{{ item }}"
+    state: present
+  with_items:
+    - alias d="docker"
+    - dbox() { docker run -it --rm --name dbox $* ubuntu bash; }
+
+- name: allow remote access to docker daemon if configured
+  include: remoteconfig.yml
+  when: docker_server_domain is defined
