@@ -73,11 +73,6 @@ if [[ $# -lt 1 ]] || [[ "$1" == "--"* ]]; then
   cd /ansible_data/playbooks/setup
   ansible-playbook --vault-password-file /tmp/ansible_vaultpass site.yml
 
-  # update the custom ansible version
-  cd /ansible_custom
-  git fetch
-  cd
-
   # And finally run Jenkins
   exec java $JAVA_OPTS -jar /usr/share/jenkins/jenkins.war $JENKINS_OPTS "$@"
 fi
