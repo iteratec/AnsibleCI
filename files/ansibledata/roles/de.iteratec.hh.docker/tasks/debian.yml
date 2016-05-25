@@ -53,3 +53,15 @@
 - name: allow remote access to docker daemon if configured
   include: remoteconfig.yml
   when: docker_server_domain is defined
+
+- name: update python-pip
+  become: yes
+  pip:
+    name: pip
+    state: latest
+
+- name: install python docker library
+  become: yes
+  pip:
+    name: docker-py
+    state: latest

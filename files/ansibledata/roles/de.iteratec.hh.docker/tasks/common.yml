@@ -1,16 +1,4 @@
 ---
-- name: update python-pip
-  become: yes
-  pip:
-    name: pip
-    state: latest
-
-- name: install python docker library
-  become: yes
-  pip:
-    name: docker-py
-    state: latest
-
 - name: create docker alias [d,dbox] for quick use of docker functionality
   lineinfile:
     dest: "{{ ansible_env.HOME }}/.bashrc"
