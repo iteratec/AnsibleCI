@@ -1,10 +1,5 @@
 ---
 
-- name: install virtualbox
-  homebrew_cask:
-    name: virtualbox
-    state: present
-
 - name: install vagrant
   homebrew_cask:
     name: vagrant
