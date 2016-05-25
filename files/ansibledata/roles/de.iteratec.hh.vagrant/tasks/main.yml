@@ -1,17 +1,2 @@
----
-
-- name: create vagrant ansible dir
-  file:
-    path: "{{ ansible_env.HOME }}/.ansible-data/vagrant"
-    state: directory
-
-- name: download vagrant deb
-  get_url:
-    url: "https://releases.hashicorp.com/vagrant/{{ vagrant_version }}/vagrant_{{ vagrant_version }}_x86_64.deb"
-    dest: "{{ ansible_env.HOME }}/.ansible-data/vagrant/vagrant_{{ vagrant_version }}_x86_64.deb"
-
-- name: install vagrant
-  become: yes
-  apt:
-   deb: "{{ ansible_env.HOME }}/.ansible-data/vagrant/vagrant_{{ vagrant_version }}_x86_64.deb"
-   state: present
+- name: install vagrant depending on ansible_os_family
+  include: "{{ ansible_os_family | lower }}.yml"
