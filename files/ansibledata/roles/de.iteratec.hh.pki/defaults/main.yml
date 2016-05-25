@@ -1,6 +1,6 @@
 ---
 pki_user: "{{ ansible_user_id }}"
-pki_group: "{{ ansible_user_id }}"
+pki_group: "{{ 'staff' if (ansible_os_family | lower) == 'darwin' else ansible_user_id }}"
 pki_home: "{{ ansible_user_dir }}/.ansible-data/thomass.pki"
 
 pki_ca_country: DE
