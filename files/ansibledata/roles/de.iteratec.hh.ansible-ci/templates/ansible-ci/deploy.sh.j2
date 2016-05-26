@@ -49,13 +49,13 @@ function execute_ansible(){
 
   # run playbook
   if [[ -f ${BECOME_PASSWORD_FILE} ]] && [[ -f ${VAULT_PASSWORD_FILE} ]]; then
-    ANSIBLE_HOST_KEY_CHECKING=false ansible-playbook $ansible_verbosity --extra-vars "ansible_become_pass=$(cat $BECOME_PASSWORD_FILE)" --vault-password-file "${VAULT_PASSWORD_FILE}" "$playbook_file_name" | tee ansibleciout.txt
+    ANSIBLE_HOST_KEY_CHECKING=false ANSIBLE_FORCE_COLOR=true ansible-playbook $ansible_verbosity --extra-vars "ansible_become_pass=$(cat $BECOME_PASSWORD_FILE)" --vault-password-file "${VAULT_PASSWORD_FILE}" "$playbook_file_name" | tee ansibleciout.txt
   elif [[ -f ${BECOME_PASSWORD_FILE} ]]; then
-    ANSIBLE_HOST_KEY_CHECKING=false ansible-playbook $ansible_verbosity --extra-vars "ansible_become_pass=$(cat $BECOME_PASSWORD_FILE)" "$playbook_file_name" | tee ansibleciout.txt
+    ANSIBLE_HOST_KEY_CHECKING=false ANSIBLE_FORCE_COLOR=true ansible-playbook $ansible_verbosity --extra-vars "ansible_become_pass=$(cat $BECOME_PASSWORD_FILE)" "$playbook_file_name" | tee ansibleciout.txt
   elif [[ -f ${VAULT_PASSWORD_FILE} ]]; then
-    ANSIBLE_HOST_KEY_CHECKING=false ansible-playbook $ansible_verbosity --vault-password-file "${VAULT_PASSWORD_FILE}" "$playbook_file_name" | tee ansibleciout.txt
+    ANSIBLE_HOST_KEY_CHECKING=false ANSIBLE_FORCE_COLOR=true ansible-playbook $ansible_verbosity --vault-password-file "${VAULT_PASSWORD_FILE}" "$playbook_file_name" | tee ansibleciout.txt
   else
-    ANSIBLE_HOST_KEY_CHECKING=false ansible-playbook $ansible_verbosity "$playbook_file_name" | tee ansibleciout.txt
+    ANSIBLE_HOST_KEY_CHECKING=false ANSIBLE_FORCE_COLOR=true ansible-playbook $ansible_verbosity "$playbook_file_name" | tee ansibleciout.txt
   fi
 
   # evaluate results

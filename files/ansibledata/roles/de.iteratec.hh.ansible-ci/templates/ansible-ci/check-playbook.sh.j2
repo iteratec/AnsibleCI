@@ -155,9 +155,9 @@ function execute_ansible(){
   echo ''
   # here I used 'dirty' eval because $custom_ansible_options can contain strings like --extra-vars "var1=one var2=one" which will be substituted to --extra-vars '"var1=one var2=one"'
   if [[ -f ${VAULT_PASSWORD_FILE} ]]; then
-    eval "ansible-playbook $custom_ansible_options $ansible_verbosity --vault-password-file \"${VAULT_PASSWORD_FILE}\" aci-playbook.yml | tee ansibleciout.txt"
+    eval "ANSIBLE_FORCE_COLOR=true ansible-playbook $custom_ansible_options $ansible_verbosity --vault-password-file \"${VAULT_PASSWORD_FILE}\" aci-playbook.yml | tee ansibleciout.txt"
   else
-    eval "ansible-playbook $custom_ansible_options $ansible_verbosity aci-playbook.yml | tee ansibleciout.txt"
+    eval "ANSIBLE_FORCE_COLOR=true ansible-playbook $custom_ansible_options $ansible_verbosity aci-playbook.yml | tee ansibleciout.txt"
   fi
 
   # evaluate results
