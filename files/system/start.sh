@@ -59,10 +59,10 @@ if [[ ! -f /used_config/agent_user.yml ]] && ([[ $# -lt 1 ]] || [[ "$1" == "--"*
 fi
 
 # checkout custom ansible repository
-if [[ -f /ansible_config/conf_ansible_repository ]] && [[ ! -f /var/jenkins_home/.using_custom_repo ]]; then
+if [[ -f /used_config/conf_ansible_repository ]] && [[ ! -f /var/jenkins_home/.using_custom_repo ]]; then
   cd /ansible_custom
   rm -rf * .[a-zA-Z0-9]*
-  git clone "$(cat /ansible_config/conf_ansible_repository | head -n 1)" --recursive .
+  git clone "$(cat /used_config/conf_ansible_repository | head -n 1)" --recursive .
   touch /var/jenkins_home/.using_custom_repo
 fi
 

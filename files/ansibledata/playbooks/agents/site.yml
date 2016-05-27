@@ -3,6 +3,7 @@
   hosts: agents
   vars_files:
     - /used_config/vault.yml
+    - /used_config/aci.yml
     - /used_config/agents.yml
     - /used_config/agent_user.yml
   vars_prompt:

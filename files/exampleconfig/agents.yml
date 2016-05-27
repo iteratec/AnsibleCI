@@ -1,8 +1,4 @@
 ---
-# could be [server,development]
-# see aci example config
-aci_install_type: development
-
 # The port the ssh daemon of the agent is reachable from
 acia_ssh_port: 22
 # The hostname/ip of the AnsibleCI Agent, the host where Vagrant is running on
