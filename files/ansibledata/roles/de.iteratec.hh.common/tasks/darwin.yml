@@ -1,1 +1,13 @@
 ---
+
+- name: "check if brew-python-packages existing"
+  stat:
+    path: /usr/local/lib/python2.7/site-packages
+  register: python_packages
+
+- name: "add brew-python packages to system-python"
+  lineinfile:
+    dest: ~/Library/Python/2.7/lib/python/site-packages/homebrew.pth
+    regex: ^/usr/local/lib/python2.7/site-packages$
+    line: /usr/local/lib/python2.7/site-packages
+  when: python_packages.exists
