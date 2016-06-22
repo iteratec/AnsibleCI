@@ -88,10 +88,10 @@ function execute_hook(){
 }
 
 function switch_ansible_branch(){
+  echo "Use Branch $repo_branch"
   repo_branch="$1"
   prev_dir=$(pwd)
   cd /ansible_custom
-  git reset --hard origin/HEAD
   git fetch
   git checkout "$repo_branch" 1>/dev/null
   git submodule update 1>/dev/null
@@ -100,16 +100,16 @@ function switch_ansible_branch(){
 }
 
 function switch_ansible_version(){
+  echo "Use Version $repo_version"
   repo_version="$1"
   prev_dir=$(pwd)
   cd /ansible_custom
-  git reset --hard origin/HEAD
-  git merge
-  git reset --hard "$repo_version" 1>/dev/null
-  git submodule update 1>/dev/null
+  git reset --hard "$repo_version"
+  git submodule update
   source ./hacking/env-setup -q
   cd "$prev_dir"
 }
+
 
 function execute_ansible(){
   run_name=$1
