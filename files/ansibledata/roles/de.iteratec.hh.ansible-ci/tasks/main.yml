@@ -51,6 +51,7 @@
     src: "jenkins_home/{{ item }}.j2"
     dest: "/var/jenkins_home/{{ item }}"
   with_items:
+    - .gitconfig
     - config.xml
     - credentials.xml
     - hudson.plugins.git.GitSCM.xml

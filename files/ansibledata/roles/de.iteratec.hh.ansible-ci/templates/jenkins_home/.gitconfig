@@ -1,0 +1,5 @@
+[user]
+	name = {{ aci_admin_name }}
+	email = {{ aci_admin_email }}
+[push]
+	default = simple
