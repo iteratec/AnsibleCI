@@ -83,6 +83,7 @@ COPY files/system/deploy-aci /usr/local/bin/deploy-aci
 COPY files/system/deploy-agents /usr/local/bin/deploy-agents
 COPY files/system/deploy-prelive /usr/local/bin/deploy-prelive
 COPY files/tools/local_client_setup.sh /tools/local_client_setup.sh
+COPY files/tools/remote_server_setup.sh /tools/remote_server_setup.sh
 
 # add jenkins to sudoers
 RUN usermod -a -G sudo jenkins && \
