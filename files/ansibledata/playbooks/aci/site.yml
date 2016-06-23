@@ -12,7 +12,7 @@
 
     - name: copy configuration files to server
       copy:
-        src: /used_config
+        src: /used_config/
         dest: /etc/ansibleci
 
     - name: start ACI Docker container
