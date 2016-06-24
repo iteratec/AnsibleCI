@@ -31,7 +31,7 @@
 
 - name: add authorized_key for ansible-ci server on vagrant host
   authorized_key:
-    user: "{{ ansible_user_id }}"
+    user: "{{ acia_login_user }}"
     key: "{{ ACI_PUBLIC_KEY }}"
 
 - name: create working directory

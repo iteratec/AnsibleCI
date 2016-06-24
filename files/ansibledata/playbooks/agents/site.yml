@@ -5,7 +5,6 @@
     - /used_config/vault.yml
     - /used_config/aci.yml
     - /used_config/agents.yml
-    - /used_config/agent_user.yml
   vars_prompt:
   - name: ansible_become_pass
     prompt: "SUDO password for the user"

@@ -1,4 +1,20 @@
 ---
+- name: setup AnsibleCI Agents
+  hosts: agents
+  vars_files:
+    - /used_config/vault.yml
+    - /used_config/aci.yml
+    - /used_config/agents.yml
+  roles:
+    - de.iteratec.hh.ansible-ci-agent
+
+- name: setup AnsibleCI pre live
+  hosts: prelive
+  vars_files:
+    - /used_config/prelive.yml
+  roles:
+    - de.iteratec.hh.ansible-ci-prelive
+
 - name: install Docker on ACI Server
   hosts: server
   become: yes
@@ -25,4 +41,3 @@
           - "24680:8080"
         env:
           ANSIBLE_VAULT_PASSWORD: "{{ ANSIBLE_VAULT_PASSWORD }}"
-          ACIA_LOGIN_USER: "{{ ACIA_LOGIN_USER }}"

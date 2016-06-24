@@ -1,4 +1,6 @@
 ---
+# The user acia will login with
+acia_login_user: thomass
 # The port the ssh daemon of the agent is reachable from
 acia_ssh_port: 22
 # The hostname/ip of the AnsibleCI Agent, the host where Vagrant is running on

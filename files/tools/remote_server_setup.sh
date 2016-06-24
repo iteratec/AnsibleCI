@@ -45,7 +45,6 @@ read -s -p 'Vault Password:' avp && echo ''
 
 docker run -it --rm \
   -e "ANSIBLE_VAULT_PASSWORD=$avp" \
-  -e "ACIA_LOGIN_USER=$(whoami)" \
   -v "$PWD/serverconfig":/ansible_config \
   -v "$HOME/.ssh:/var/jenkins_home/.ssh" \
   iteratechh/ansibleci deploy-remote
