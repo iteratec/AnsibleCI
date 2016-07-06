@@ -10,6 +10,11 @@ function checkout_custom_repo(){
   fi
 }
 
+function run_setup_playbook(){
+  cd /ansible_data/playbooks/setup
+  ansible-playbook --vault-password-file /tmp/ansible_vaultpass site.yml
+}
+
 function setup_aci(){
 
   if [[ $# -lt 1 ]] && [[ -z $ANSIBLE_VAULT_PASSWORD ]] && [[ -z $ACIA_LOGIN_USER ]]; then
@@ -50,8 +55,7 @@ function setup_aci(){
 
   # 'Install' ACI into Jenkins
   if [[ $# -lt 1 ]] || [[ "$1" == "--"* ]]; then
-    cd /ansible_data/playbooks/setup
-    ansible-playbook --vault-password-file /tmp/ansible_vaultpass site.yml
+    run_setup_playbook
   fi
 }
 
@@ -112,6 +116,8 @@ if [[ ! -f /var/jenkins_home/.aci_installed ]]; then
   setup_aci
   checkout_custom_repo
   touch /var/jenkins_home/.aci_installed
+else
+  run_setup_playbook
 fi
 
 # initiate default startup if no other commands than jenkins parameters are passed...
