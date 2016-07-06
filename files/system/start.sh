@@ -45,7 +45,7 @@ function setup_aci(){
   fi
 
   # for any deployment despite the prelive deployment gather agents login user if file not already present
-  if ([[ ! -f /used_config/agents.yml ]] || [[ ! $(grep -q acia_login_user /used_config/agents.yml) ]]) && ([[ $# -lt 1 ]] || [[ "$1" == "--"* ]] || [[ "$1" == 'deploy-aci' ]] || [[ "$1" == 'deploy-agents' ]]); then
+  if ([[ ! -f /used_config/agents.yml ]] || [[ ! $(grep acia_login_user /used_config/agents.yml) ]]) && ([[ $# -lt 1 ]] || [[ "$1" == "--"* ]] || [[ "$1" == 'deploy-aci' ]] || [[ "$1" == 'deploy-agents' ]]); then
     if [[ -z $ACIA_LOGIN_USER ]]; then
       echo "You have to provide the user for logging onto the ACI agents machine through the ACIA_LOGIN_USER variable."
       exit 1
