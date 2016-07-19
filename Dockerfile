@@ -33,7 +33,7 @@ RUN pip install paramiko==1.16.0 \
                 markupsafe==0.23 \
                 ansible==2.0.2.0 \
                 docker-py==1.8.0 \
-                ansible-lint==2.6.2
+                ansible-lint==3.1.2
 
 # install required Jenkins PlugIns
 COPY files/mod_jenkins/plugins.txt /usr/share/jenkins/plugins.txt
