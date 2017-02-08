@@ -18,6 +18,8 @@ function run_setup_playbook(){
 function setup_aci(){
 
   if [[ $# -lt 1 ]] && [[ -z $ANSIBLE_VAULT_PASSWORD ]] && [[ -z $ACIA_LOGIN_USER ]]; then
+    echo -e '\nFirst install VirtualBox and Vagrant.'
+    echo ''
     echo -e '\nFor local usage of ACI create a new, empty workspace folder, run the'
     echo 'following commands inside and follow the instructions: '
     echo ''
