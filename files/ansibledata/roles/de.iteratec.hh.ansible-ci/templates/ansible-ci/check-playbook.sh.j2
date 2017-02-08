@@ -94,7 +94,7 @@ function switch_ansible_branch(){
   cd /ansible_custom
   git fetch
   git checkout "$repo_branch" 1>/dev/null
-  git submodule update 1>/dev/null
+  git submodule update --init --recursive 1>/dev/null
   source ./hacking/env-setup -q
   cd "$prev_dir"
 }
@@ -105,7 +105,7 @@ function switch_ansible_version(){
   prev_dir=$(pwd)
   cd /ansible_custom
   git reset --hard "$repo_version"
-  git submodule update
+  git submodule update --init --recursive
   source ./hacking/env-setup -q
   cd "$prev_dir"
 }
