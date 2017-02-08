@@ -4,6 +4,7 @@ MAINTAINER thomas.steinbach iteratec.de
 USER root
 
 RUN apt-get update && \
+    apt-get upgrade -y && \
     DEBIAN_FRONTEND=noninteractive apt-get install -y \
       python-dev \
       python-pip \
