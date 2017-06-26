@@ -1,4 +1,0 @@
-#!/bin/bash
-
-cd /ansible_data/playbooks/agents
-ansible-playbook --vault-password-file /tmp/ansible_vaultpass -i /used_config/agents.inventory $* site.yml

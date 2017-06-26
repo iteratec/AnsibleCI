@@ -40,14 +40,20 @@ if [[ ! -f serverconfig/vault.yml ]]; then
 fi
 
 clear
-echo 'Starting ACI with...'
-read -s -p 'Vault Password:' avp && echo ''
+echo 'The basic configuration of your workspace is ready. Now you have to configure'
+echo 'all configuration files created. After finishing the configuration you can'
+echo 'either package the configuration to a new Docker image derived from the'
+echo 'iteratechh/ansibleci image or deploy the workspace to the server and mount the'
+echo 'workspace directory to the iteratechh/ansibleci container. On the server you'
+echo 'should run the AnsibleCI container with at least following configuration:'
 
-docker run -it --rm \
-  -e "ANSIBLE_VAULT_PASSWORD=$avp" \
-  -v "$PWD/serverconfig":/ansible_config \
-  -v "$HOME/.ssh:/var/jenkins_home/.ssh" \
-  iteratechh/ansibleci deploy-remote
+docker run -d \
+  --name aci \
+  -p <aci_server_port>:8080 \
+  -e "ACI_VAULT_PASSWORD=<aci_vault_password>" \
+  -e "ACIA_LOGIN_USER=<agents_machine_login_user>" \
+  -v "<path/to/workspace>":/ansible_config \
+  iteratechh/ansibleci
 
 echo ''
 echo 'The AnsibleCI Docker container has been started.'
@@ -55,9 +61,8 @@ echo 'You can monitor the startup and further logs with'
 echo ''
 echo '    docker logs -f aci'
 echo ''
-echo 'After a while ACI will be available on http://localhost:8081'
+echo 'After a while ACI will be available on http://<aci_server_domain>:<aci_server_port>'
 echo ''
 echo 'When ACI is up and running you have to complete the setup by'
-echo 'running the installation of the local Vagrant Agent by running'
-echo ''
-echo '    docker exec -it aci deploy-agents'
+echo 'running the Jenkins jobs 00_SETUP_AGENTS and 00_SETUP_PRELIVE'
+echo 'once.'

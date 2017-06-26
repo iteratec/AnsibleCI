@@ -3,21 +3,21 @@
 set -e
 
 function checkout_custom_repo(){
-  if [[ -f /used_config/conf_ansible_repository ]]; then
+  if [[ -f /used_config/custom_ansible_repository ]]; then
     cd /ansible_custom
     rm -rf * .[a-zA-Z0-9]*
-    git clone "$(cat /used_config/conf_ansible_repository | head -n 1)" --recursive .
+    git clone "$(cat /used_config/custom_ansible_repository | head -n 1)" --recursive .
   fi
 }
 
 function run_setup_playbook(){
   cd /ansible_data/playbooks/setup
-  ansible-playbook --vault-password-file /tmp/ansible_vaultpass site.yml
+  ansible-playbook --vault-password-file /used_config/aci_vaultpass site.yml
 }
 
-function setup_aci(){
+function assure_prerequisites(){
 
-  if [[ $# -lt 1 ]] && [[ -z $ANSIBLE_VAULT_PASSWORD ]] && [[ -z $ACIA_LOGIN_USER ]]; then
+  if [[ -z $ACI_VAULT_PASSWORD ]] && [[ -z $ACIA_LOGIN_USER ]]; then
     echo -e '\nFirst install VirtualBox and Vagrant.'
     echo ''
     echo -e '\nFor local usage of ACI create a new, empty workspace folder, run the'
@@ -27,105 +27,50 @@ function setup_aci(){
     echo '  chmod +x aci_local.sh'
     echo '  ./aci_local.sh'
     echo ''
-    echo 'For deploying ACI on a remote server get further documentation by'
-    echo 'running the following command:'
+    echo 'For deploying ACI on a remote server run the following command instead:'
     echo ''
-    echo -e '  docker run --m iteratechh/ansibleci help\n'
+    echo ''
+    echo '  docker run --rm iteratechh/ansibleci get-remote-start-script > aci_remote.sh'
+    echo '  chmod +x aci_remote.sh'
+    echo '  ./aci_remote.sh'
+
     exit
   fi
 
-  # execute default Docker jenkins start script
+  # execute default Docker jenkins start script to populate jenkins home
   /usr/local/bin/jenkins.sh date 1>/dev/null # pass 'date' to suppress startup of jenkins
 
-  # for any deployment gather vault password
-  if [[ $# -lt 1 ]] || [[ "$1" == "--"* ]] || [[ "$1" == 'deploy-aci' ]] || [[ "$1" == 'deploy-agents' ]] || [[ "$1" == 'deploy-prelive' ]]; then
-    if [[ -z $ANSIBLE_VAULT_PASSWORD ]]; then
-      echo "You have to provide the vault password through the ANSIBLE_VAULT_PASSWORD variable."
-      exit 1
-    fi
-    echo "$ANSIBLE_VAULT_PASSWORD" > /tmp/ansible_vaultpass
+  # gather vault password for aci configuration
+  if [[ -z $ACI_VAULT_PASSWORD ]]; then
+    echo "You have to provide the vault password through the ACI_VAULT_PASSWORD variable."
+    exit 1
   fi
+  echo "$ACI_VAULT_PASSWORD" > /used_config/aci_vaultpass
 
-  # for any deployment despite the prelive deployment gather agents login user if file not already present
-  if ([[ ! -f /used_config/agents.yml ]] || [[ ! $(grep acia_login_user /used_config/agents.yml) ]]) && ([[ $# -lt 1 ]] || [[ "$1" == "--"* ]] || [[ "$1" == 'deploy-aci' ]] || [[ "$1" == 'deploy-agents' ]]); then
+  # gather AnsibleCI agents login user if agents.yml not already present
+  if [[ ! -f /used_config/agents.yml ]] || [[ ! $(grep acia_login_user /used_config/agents.yml) ]]; then
     if [[ -z $ACIA_LOGIN_USER ]]; then
       echo "You have to provide the user for logging onto the ACI agents machine through the ACIA_LOGIN_USER variable."
       exit 1
     fi
     echo "acia_login_user: $ACIA_LOGIN_USER" >> /used_config/agents.yml
   fi
-
-  # 'Install' ACI into Jenkins
-  if [[ $# -lt 1 ]] || [[ "$1" == "--"* ]]; then
-    run_setup_playbook
-  fi
 }
 
-function deploy_remote(){
-
-  # for any deployment gather vault password
-  if [[ $# -lt 1 ]] || [[ "$1" == "--"* ]] || [[ "$1" == 'deploy-aci' ]] || [[ "$1" == 'deploy-agents' ]] || [[ "$1" == 'deploy-prelive' ]]; then
-    if [[ -z $ANSIBLE_VAULT_PASSWORD ]]; then
-      echo "You have to provide the vault password through the ANSIBLE_VAULT_PASSWORD variable."
-      exit 1
-    fi
-    echo "$ANSIBLE_VAULT_PASSWORD" > /tmp/ansible_vaultpass
-  fi
-
-  # 'Install' ACI into Jenkins
-  if [[ $# -lt 1 ]] || [[ "$1" == "--"* ]]; then
-    cd /ansible_data/playbooks/aci
-    ansible-playbook --ask-become-pass --vault-password-file /tmp/ansible_vaultpass --extra-vars "ANSIBLE_VAULT_PASSWORD='$ANSIBLE_VAULT_PASSWORD' ACIA_LOGIN_USER='$ACIA_LOGIN_USER'" site.yml
-  fi
-}
-
-## Start of definition of singleton functions
-
-if [[ $1 == 'help' ]]; then
-  echo -e '\nCLI documentation coming soon.'
-  echo -e 'Please refere meanwhile to the documentation of the Docker repository.\n'
-  exit
-fi
-
-if [[ $1 == 'get-local-start-script' ]]; then
-  cat /tools/local_client_setup.sh
-  exit
-fi
-
-if [[ $1 == 'get-remote-start-script' ]]; then
-  cat /tools/remote_server_setup.sh
-  exit
-fi
-
-## End of definition of singleton functions
+## START OF SCRIPT EXECUTION
 
 # update used configuration
 if [[ $(ls /ansible_config/) ]]; then
   cp /ansible_config/* /used_config
 fi
 
-if [[ $1 == 'deploy-remote' ]]; then
-  deploy_remote
-  exit
-fi
-
-if [[ $1 == 'no-setup' ]]; then
-  checkout_custom_repo
-  exec java $JAVA_OPTS -jar /usr/share/jenkins/jenkins.war $JENKINS_OPTS "$@"
-fi
-
-if [[ ! -f /var/jenkins_home/.aci_installed ]]; then
-  setup_aci
-  checkout_custom_repo
-  touch /var/jenkins_home/.aci_installed
-else
-  run_setup_playbook
+# quit script and exec command if it is not a jenkins option
+if [[ $# -gt 1 ]] && [[ "$1" != "--"* ]]; then
+  exec "$@"
 fi
 
 # initiate default startup if no other commands than jenkins parameters are passed...
-if [[ $# -lt 1 ]] || [[ "$1" == "--"* ]]; then
-  exec java $JAVA_OPTS -jar /usr/share/jenkins/jenkins.war $JENKINS_OPTS "$@"
-fi
-
-# ...or execute the command given
-exec "$@"
+assure_prerequisites
+run_setup_playbook
+checkout_custom_repo
+exec java $JAVA_OPTS -jar /usr/share/jenkins/jenkins.war $JENKINS_OPTS "$@"

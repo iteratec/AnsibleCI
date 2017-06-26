@@ -2,6 +2,7 @@
 
 set -e
 
+# respect old bash versions on mac os
 regex='^[4-9].*'
 if [[ $BASH_VERSION =~ $regex ]]; then
   oldbash=false
@@ -9,16 +10,21 @@ else
   oldbash=true
 fi
 
+# check if aci stack is present but must be started
+# check if 'aci' container is present but in paused state
 if [[ $(docker inspect -f "{{ .State.Paused }}" aci 2>/dev/null) ]]; then
 
+  # initialize variable (assume agent is deployed)
   mustDeployAgents=false
 
+  # check if 'squid-deb-proxy' container is present but in paused state
   if [[ $(docker inspect -f "{{ .State.Paused }}" squid-deb-proxy 2>/dev/null) ]]; then
     docker start squid-deb-proxy
   else
     mustDeployAgents=true
   fi
 
+  # check if 'docker-mirror' container is present but in paused state
   if [[ $(docker inspect -f "{{ .State.Paused }}" docker-mirror 2>/dev/null) ]]; then
     docker start docker-mirror
   else
@@ -28,15 +34,16 @@ if [[ $(docker inspect -f "{{ .State.Paused }}" aci 2>/dev/null) ]]; then
   echo 'ACI container already exists. Starting...'
   docker start aci
 
+  # agents are not fully configured; squid-deb-proxy and/or docker-mirror are missing
   if [[ "$mustDeployAgents" = 'true' ]]; then
-    echo 'However your agent is not fully running, so you have to run following command again:'
-    echo ''
-    echo '    docker exec -it aci deploy-agents'
+    echo 'However your agent is not fully running, so you have to run the'
+    echo '00_SETUP_AGENTS Jenkins job again.'
   fi
 
   exit
 fi
 
+# check if workspace directory must be created
 if [[ ! -d clientconfig ]]; then
   echo 'It seems to be the first time running ACI at this workspace location:'
   echo -e "\n\t$(pwd)\n"
@@ -49,6 +56,7 @@ if [[ ! -d clientconfig ]]; then
   fi
 fi
 
+# create repository configuration
 if [[ ! -f clientconfig/repositories.yml ]]; then
 
   echo -e "---\naci_repository:" > clientconfig/repositories.yml
@@ -93,6 +101,8 @@ if [[ ! -f clientconfig/repositories.yml ]]; then
   done
 fi
 
+# begin collection of local paths to the repos
+# the paths in the resulting file will later be mounted to the container
 if [[ ! -f clientconfig/conf_repository_path ]]; then
   clear
   echo 'Configuration Check [....  ]'
@@ -116,7 +126,11 @@ for repo in $(grep 'name: ' clientconfig/repositories.yml | cut -c 11-); do
   fi
 done
 
+# configure aci vault file
 if [[ ! -f clientconfig/vault.yml ]]; then
+  read -s -p ' SUDO password for the user $(whoami): ' sudopass
+  echo "ACIA_LOGIN_PASS: $(sudopass)"  > clientconfig/vault.yml
+
   echo "PKI_PASSWORD: $(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 32 | head -n 1)" > clientconfig/vault.yml
 
   echo 'ACI_PRIVATE_KEY: |' >> clientconfig/vault.yml
@@ -152,6 +166,8 @@ for file in vault.yml conf_repository_path; do
   grep -q -F "clientconfig/$file" .gitignore || echo "clientconfig/$file" >> .gitignore
 done
 
+# FINISHED CONFIGURATION - START ACI
+
 clear
 echo 'Starting ACI with...'
 read -s -p 'Vault Password:' avp && echo ''
@@ -159,7 +175,7 @@ read -s -p 'Vault Password:' avp && echo ''
 docker run -d \
   --name aci \
   -p 8081:8080 \
-  -e "ANSIBLE_VAULT_PASSWORD=$avp" \
+  -e "ACI_VAULT_PASSWORD=$avp" \
   -e "ACIA_LOGIN_USER=$(whoami)" \
   -v "$(pwd)/clientconfig":/ansible_config \
   $(cat clientconfig/conf_repository_path) \
@@ -174,6 +190,4 @@ echo ''
 echo 'After a while ACI will be available on http://localhost:8081'
 echo ''
 echo 'When ACI is up and running you have to complete the setup by'
-echo 'running the installation of the local Vagrant Agent by running'
-echo ''
-echo '    docker exec -it aci deploy-agents'
+echo 'running the Jenkins job 00_SETUP_AGENTS once.'

@@ -15,7 +15,7 @@ mv example_config ansible_config
 #!/bin/bash
 echo 'Vault Password: '
 read -s avp
-docker run -d --name aci -p 8081:8080 --env "ANSIBLE_VAULT_PASSWORD=$avp"
+docker run -d --name aci -p 8081:8080 --env "ACI_VAULT_PASSWORD=$avp"
   -v /path/to/ansible_config:/ansible_config
   -v /path/to/repository:/var/jenkins_home/workspace/develop/<repo-label>
   iteratechh/ansibleci
@@ -24,6 +24,4 @@ docker run -d --name aci -p 8081:8080 --env "ANSIBLE_VAULT_PASSWORD=$avp"
 
 ## 3 Deploy ACI Agent
 
-```
-docker exec -it aci deploy-agents
-```
+Run Jenkins Job 00_SETUP_AGENTS

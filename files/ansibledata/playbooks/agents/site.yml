@@ -5,10 +5,8 @@
     - /used_config/vault.yml
     - /used_config/aci.yml
     - /used_config/agents.yml
-  vars_prompt:
-  - name: ansible_become_pass
-    prompt: "SUDO password for the user"
-    private: yes
+  vars:
+    ansible_become_pass: "{{ ACIA_LOGIN_PASS }}"
   remote_user: "{{ acia_login_user }}"
   roles:
     - de.iteratec.hh.ansible-ci-agent

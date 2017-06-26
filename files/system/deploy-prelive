@@ -1,4 +1,0 @@
-#!/bin/bash
-
-cd /ansible_data/playbooks/prelive
-ansible-playbook --vault-password-file /tmp/ansible_vaultpass -i /used_config/prelive.inventory $* site.yml

@@ -11,6 +11,7 @@
     state: directory
   with_items:
     - /var/jenkins_home/users/admin
+    - /var/jenkins_home/jobs/00_SETUP_AGENTS
     - /var/jenkins_home/jobs/03_RUN_TESTS
     - /var/jenkins_home/jobs/REMOVE_TARGET
     - /var/jenkins_home/ansible-ci/serverspec/spec
@@ -20,6 +21,7 @@
     path: "{{ item }}"
     state: directory
   with_items:
+    - /var/jenkins_home/jobs/00_SETUP_PRELIVE
     - /var/jenkins_home/jobs/12_DEPLOY_STAGING
     - /var/jenkins_home/jobs/22_DEPLOY_LIVE
   when: "{{ aci_install_type == 'server' }}"
@@ -131,6 +133,7 @@
     src: "jenkins_home/jobs/{{ item }}/config.xml.j2"
     dest: "/var/jenkins_home/jobs/{{ item }}/config.xml"
   with_items:
+    - 00_SETUP_AGENTS
     - 03_RUN_TESTS
     - REMOVE_TARGET
 
@@ -139,6 +142,7 @@
     src: "jenkins_home/jobs/{{ item }}/config.xml.j2"
     dest: "/var/jenkins_home/jobs/{{ item }}/config.xml"
   with_items:
+    - 00_SETUP_PRELIVE
     - 12_DEPLOY_STAGING
     - 22_DEPLOY_LIVE
   when: "{{ aci_install_type == 'server'  }}"

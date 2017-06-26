@@ -183,7 +183,7 @@ Analogous to the Ansible version you can define the branch in the `aci/ansible_b
 
 ### Custom Ansible Repository
 
-You can also define your custom Ansible repository to use for testing and deployment. This setting can just be done per ACI installation. To activate you have to provide the URL of the repository to the first line of the file `conf_ansible_repository` within your configuration directory mounted to the `/ansible_config` directory inside the ACI Docker container.
+You can also define your custom Ansible repository to use for testing and deployment. This setting can just be done per ACI installation. To activate you have to provide the URL of the repository to the first line of the file `custom_ansible_repository` within your configuration directory mounted to the `/ansible_config` directory inside the ACI Docker container.
 
 ## Create a custom Testplan
 
