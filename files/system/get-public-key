@@ -1,3 +1,0 @@
-#!/bin/bash
-
-ssh-keygen -y -f /var/jenkins_home/.ssh/id_rsa

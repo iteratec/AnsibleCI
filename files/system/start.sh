@@ -59,6 +59,14 @@ function assure_prerequisites(){
 
 ## START OF SCRIPT EXECUTION
 
+if [[ "$1" = "get-local-start-script" ]]; then
+  cat /tools/local_client_setup.sh; exit 1;
+elif [[ "$1" = "get-remote-start-script" ]]; then
+  cat /tools/remote_server_setup.sh; exit 1;
+elif [[ "$1" = "get-public-key" ]]; then
+  ssh-keygen -y -f /var/jenkins_home/.ssh/id_rsa; exit 1;
+fi
+
 # update used configuration
 if [[ $(ls /ansible_config/) ]]; then
   cp /ansible_config/* /used_config
