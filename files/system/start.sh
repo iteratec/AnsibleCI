@@ -23,16 +23,12 @@ function assure_prerequisites(){
     echo -e '\nFor local usage of ACI create a new, empty workspace folder, run the'
     echo 'following commands inside and follow the instructions: '
     echo ''
-    echo '  docker run --rm iteratechh/ansibleci get-local-start-script > aci_local.sh'
-    echo '  chmod +x aci_local.sh'
-    echo '  ./aci_local.sh'
+    echo '  docker run -it --rm -v "$PWD":/ansible_config iteratechh/ansibleci local-setup'
+    echo ''
     echo ''
     echo 'For deploying ACI on a remote server run the following command instead:'
     echo ''
-    echo ''
-    echo '  docker run --rm iteratechh/ansibleci get-remote-start-script > aci_remote.sh'
-    echo '  chmod +x aci_remote.sh'
-    echo '  ./aci_remote.sh'
+    echo '  docker run -it --rm -v "$PWD":/ansible_config iteratechh/ansibleci server-setup'
 
     exit
   fi
@@ -59,10 +55,10 @@ function assure_prerequisites(){
 
 ## START OF SCRIPT EXECUTION
 
-if [[ "$1" = "get-local-start-script" ]]; then
-  cat /tools/local_client_setup.sh; exit 1;
-elif [[ "$1" = "get-remote-start-script" ]]; then
-  cat /tools/remote_server_setup.sh; exit 1;
+if [[ "$1" = "local-setup" ]]; then
+  local_setup.sh; exit 1;
+elif [[ "$1" = "server-setup" ]]; then
+  server_setup.sh; exit 1;
 elif [[ "$1" = "get-public-key" ]]; then
   ssh-keygen -y -f /var/jenkins_home/.ssh/id_rsa; exit 1;
 fi

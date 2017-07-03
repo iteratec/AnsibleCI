@@ -27,7 +27,7 @@
     </com.cloudbees.plugins.credentials.UserCredentialsProvider_-UserCredentialsProperty>
     {% if aci_install_type == 'server' %}
     <hudson.security.HudsonPrivateSecurityRealm_-Details>
-      <passwordHash>{{ lookup('password', '/tmp/testvar chars=ascii_letters,digits length=8') + ':' + (ACI_ADMIN_PASSWORD + '{' + lookup('password', '/tmp/testvar chars=ascii_letters,digits length=8') + '}')|hash('sha256') }}</passwordHash>
+      <passwordHash>{{ lookup('password', '/tmp/passui chars=ascii_letters,digits length=8') + ':' + (ACI_ADMIN_PASSWORD + '{' + lookup('password', '/tmp/passui chars=ascii_letters,digits length=8') + '}')|hash('sha256') }}</passwordHash>
     </hudson.security.HudsonPrivateSecurityRealm_-Details>
     {% else %}
     <hudson.security.HudsonPrivateSecurityRealm_-Details/>
