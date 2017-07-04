@@ -13,6 +13,10 @@ aci_admin_name: Admin
 # Admin password for the AnsibleCI GUI
 # is 'ACI_ADMIN_PASSWORD' in the Vault
 
+# If ACI is behind a proxy
+aci_proxy_url: None
+# also mention acia_proxy_url in agents.yml
+
 # Server specific configuration
 # =============================
 

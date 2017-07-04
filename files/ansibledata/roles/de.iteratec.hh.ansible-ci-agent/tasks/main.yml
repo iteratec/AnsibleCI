@@ -39,6 +39,10 @@
     path: "{{ WORKING_DIRECTORY }}"
     state: directory
 
+- name: install vagrant proxy plugin
+  command: vagrant plugin install vagrant-proxyconf
+  when: acia_proxy_url is defined
+
 - name: copy vagrantfile
   template:
     src: "{{ item }}.j2"

@@ -3,6 +3,9 @@
 acia_login_user: thomass
 # The port the ssh daemon of the agent is reachable from
 acia_ssh_port: 22
+# If the ACIA is behind a proxy
+acia_proxy_url: None
+
 # The hostname/ip of the AnsibleCI Agent, the host where Vagrant is running on
 # The host must be the same machine as the ACI Jenkins is running on, so that ACI
 # can access the virtual test machine directly per IP.

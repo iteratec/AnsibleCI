@@ -1,5 +1,23 @@
 ---
 
+- name: set proxy environment variables
+  lineinfile:
+    path: /etc/environment
+    regexp: "{{ item }}"
+    line: "{{ item }}={{ aci_proxy_url }}"
+  with_items:
+    - http_proxy
+    - https_proxy
+  when: aci_proxy_url is defined
+
+- name: set proxy for git
+  blockinfile:
+    path: /var/jenkins_home/.gitconfig
+    block: |
+      [http]
+        proxy = {{ aci_proxy_url }}
+  when: aci_proxy_url is defined
+
 # can't use lineinfile as of bug https://github.com/ansible/ansible/issues/13981
 - name: add ACIA VM IP as 'acia.vm' to /etc/hosts file
   become: yes
