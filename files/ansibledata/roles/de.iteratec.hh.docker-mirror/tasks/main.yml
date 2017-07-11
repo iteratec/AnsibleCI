@@ -12,6 +12,7 @@
     dest: "{{ dmirror_home }}/config.yml"
 
 - name: run docker registry
+  become: yes
   docker:
     name: docker-mirror
     image: registry:2

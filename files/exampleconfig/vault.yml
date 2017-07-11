@@ -2,6 +2,8 @@ ACI_ADMIN_PASSWORD: notthatlush
 
 PKI_PASSWORD: moresafetyplease
 
+ACIA_SUDO_PASSWORD: couldbeemptystring
+
 SMTP_PASSWORD_HASH: Aditk2Baczgcfz1EHFo9MBanskHcvw=
 
 PASSWORDS:

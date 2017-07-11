@@ -6,10 +6,11 @@ USER root
 RUN apt-get update && \
     apt-get upgrade -y && \
     DEBIAN_FRONTEND=noninteractive apt-get install -y \
+      build-essential \
+      libssl-dev \
+      libffi-dev \
       python-dev \
-      python-pip \
-      python-apt \
-      python-docker \
+      python-setuptools \
       sudo \
       git \
       ruby \
@@ -25,16 +26,12 @@ RUN apt-get update && \
     apt-get clean && \
     apt-get autoremove
 
-RUN gem install serverspec
-RUN pip install paramiko==1.16.0 \
-                PyYAML==3.11 \
-                Jinja2==2.8 \
-                httplib2==0.9.2 \
-                six==1.8.0 \
-                markupsafe==0.23 \
-                ansible==2.0.2.0 \
-                docker-py==1.8.0 \
-                ansible-lint==3.1.2
+RUN easy_install pip && \
+    gem install serverspec
+RUN pip install setuptools \
+                ansible==2.3.1.0 \
+                docker-py==1.10.6 \
+                ansible-lint==3.4.13
 
 # install required Jenkins PlugIns
 COPY files/mod_jenkins/plugins.txt /usr/share/jenkins/plugins.txt
@@ -44,10 +41,13 @@ RUN /usr/local/bin/plugins.sh /usr/share/jenkins/plugins.txt
 RUN mkdir /etc/ansible && \
     echo 'localhost ansible_connection=local' >> /etc/ansible/hosts
 
+# (optional) use proxy for git
+RUN git config --global http.proxy http://172.24.104.188:3128
+
 # setup custom Ansible installation from sources
 RUN mkdir /ansible_custom && \
     cd /ansible_custom && \
-    git clone git://github.com/ansible/ansible.git . --recursive
+    git clone https://github.com/ansible/ansible.git . --recursive
 
 # modify Ansible installation
 COPY files/mod_ansible/profile_tasks.py /usr/local/lib/python2.7/dist-packages/ansible/plugins/callback/profile_tasks.py

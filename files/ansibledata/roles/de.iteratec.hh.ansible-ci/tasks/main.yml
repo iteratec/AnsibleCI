@@ -2,7 +2,7 @@
 
 - name: set proxy environment variables
   lineinfile:
-    path: /etc/environment
+    dest: /etc/environment
     regexp: "{{ item }}"
     line: "{{ item }}={{ aci_proxy_url }}"
   with_items:
@@ -12,7 +12,8 @@
 
 - name: set proxy for git
   blockinfile:
-    path: /var/jenkins_home/.gitconfig
+    dest: /var/jenkins_home/.gitconfig
+    create: yes
     block: |
       [http]
         proxy = {{ aci_proxy_url }}
@@ -49,7 +50,7 @@
     path: "/var/jenkins_home/.ssh/{{ item.name }}"
     state: directory
     mode: 0700
-  with_items: aci_repository
+  with_items: "{{ aci_repository }}"
 
 - name: jenkins private key for vagrant
   copy:
@@ -64,7 +65,7 @@
     dest: "/var/jenkins_home/.ssh/{{ item.name }}/id_rsa"
     mode: 0600
   with_items: aci_repository
-  when: "{{ aci_install_type == 'server' }}"
+  when: "{{ aci_install_type == 'server' and item.id_rsa is defined }}"
 
 - name: copy jenkins system configuration
   template:
@@ -88,7 +89,7 @@
     path: "/var/jenkins_home/passwords/{{ item.repository }}"
     state: directory
     mode: 0700
-  with_items: PASSWORDS
+  with_items: "{{ PASSWORDS }}"
 
 - name: create vault-password-files
   copy:
@@ -96,7 +97,7 @@
     dest: "/var/jenkins_home/passwords/{{ item[0].repository }}/{{ item[1].name }}.vaultpass"
     mode: 0600
   with_subelements:
-    - PASSWORDS
+    - "{{ PASSWORDS }}"
     - playbooks
   when: "{{ item[1].vault is defined }}"
 
@@ -106,7 +107,7 @@
     dest: "/var/jenkins_home/passwords/{{ item[0].repository }}/{{ item[1].name }}.becomepass"
     mode: 0600
   with_subelements:
-    - PASSWORDS
+    - "{{ PASSWORDS }}"
     - playbooks
   when: "{{ aci_install_type == 'server' and item[1].become is defined }}"
 

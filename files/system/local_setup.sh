@@ -129,7 +129,7 @@ done
 # configure aci vault file
 if [[ ! -f vault.yml ]]; then
   read -s -p ' SUDO password for the user $(whoami): ' sudopass
-  echo "ACIA_LOGIN_PASS: $(sudopass)"  > vault.yml
+  echo "ACIA_SUDO_PASSWORD: $(sudopass)"  > vault.yml
 
   echo "PKI_PASSWORD: $(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 32 | head -n 1)" > vault.yml
 

@@ -11,6 +11,7 @@
     dest: "{{ SQUID_HOME }}/squid-deb-proxy.conf"
 
 - name: create squid-deb-proxy DVC
+  become: yes
   docker:
     name: squid-deb-proxy-data
     image: pmoust/squid-deb-proxy
@@ -19,6 +20,7 @@
     state: present
 
 - name: create squid-deb-proxy container
+  become: yes
   docker:
     name: squid-deb-proxy
     image: pmoust/squid-deb-proxy
@@ -38,10 +40,6 @@
   file:
     path: "{{ WORKING_DIRECTORY }}"
     state: directory
-
-- name: install vagrant proxy plugin
-  command: vagrant plugin install vagrant-proxyconf
-  when: acia_proxy_url is defined
 
 - name: copy vagrantfile
   template:
