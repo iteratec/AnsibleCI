@@ -3,3 +3,7 @@
 	email = {{ aci_admin_email }}
 [push]
 	default = simple
+{% if aci_proxy_url is defined %}
+[http]
+  proxy = {{ aci_proxy_url }}
+{% endif %}

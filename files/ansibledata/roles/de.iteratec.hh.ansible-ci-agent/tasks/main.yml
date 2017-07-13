@@ -48,6 +48,7 @@
   with_items:
     - Vagrantfile
     - bootstrap.sh
+  when: acia_target_provider == 'vagrant'
 
 - name: create vagrants authorized_keys to allow access from ACI server
   copy:
@@ -68,9 +69,9 @@
     remote_src: yes
     mode: 0440
 
-- name: copy ansible-ci-vagrant script
+- name: copy ansible-ci-target script
   become: yes
   template:
-    src: ansible-ci-vagrant.j2
-    dest: /usr/local/bin/ansible-ci-vagrant
+    src: "ansible-ci-{{ acia_target_provider }}.j2"
+    dest: /usr/local/bin/ansible-ci-target
     mode: 0755

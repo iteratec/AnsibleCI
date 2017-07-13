@@ -65,8 +65,8 @@ function execute_hook(){
     fi
 
     chmod +x "${hook_filepath}"
-    scp -P '{{ acia_vagrant_port }}' "${hook_filepath}" "vagrant@{{ acia_vagrant_ip }}:/tmp/${hook_file}.sh"
-    ssh -n -p '{{ acia_vagrant_port }}' 'vagrant@{{ acia_vagrant_ip }}' "/tmp/${hook_file}.sh"; rc=$?
+    scp -P '{{ acia_target_port }}' "${hook_filepath}" "vagrant@acia.vm:/tmp/${hook_file}.sh"
+    ssh -n -p '{{ acia_target_port }}' 'vagrant@acia.vm' "/tmp/${hook_file}.sh"; rc=$?
 
     if [[ $rc != 0 ]]; then
       echo -e "\n-> Hook execution ${hook_file} FAILED"
@@ -301,11 +301,15 @@ fi
 # reset known_hosts file
 echo -e '\n< Starting test VM... >'
 rm "${JENKINS_HOME}/.ssh/known_hosts"
-ssh -o StrictHostKeyChecking=no -p "{{ acia_ssh_port }}" "{{ acia_login_user }}@{{ acia_vagrant_host }}" date &> /dev/null
+ssh -o StrictHostKeyChecking=no -p "{{ acia_ssh_port }}" "{{ acia_login_user }}@{{ acia_host }}" date &> /dev/null
 
-# start remote vagrant target and add to known_hosts file
-ssh -p '{{ acia_ssh_port }}' '{{ acia_login_user }}@{{ acia_vagrant_host }}' ansible-ci-vagrant up 1> /dev/null
-ssh -o StrictHostKeyChecking=no -p '{{ acia_vagrant_port }}' 'vagrant@acia.vm' date &> /dev/null
+# start remote target and
+ssh -p '{{ acia_ssh_port }}' '{{ acia_login_user }}@{{ acia_host }}' ansible-ci-target up 1> /dev/null
+# register target as acia.vm in /etc/hosts
+TARGET_HOST="$(ssh -p '{{ acia_ssh_port }}' '{{ acia_login_user }}@{{ acia_host }}' ansible-ci-target get-ip)"
+(grep -q 'acia.vm' /etc/hosts && sudo sed -i "s/.*acia.vm.*/${TARGET_HOST} acia.vm/g" /etc/hosts ) || echo "${TARGET_HOST} acia.vm" | sudo tee --append /etc/hosts
+# add target to known_hosts file
+ssh -o StrictHostKeyChecking=no -p '{{ acia_target_port }}' 'vagrant@acia.vm' date &> /dev/null
 echo '< ...done >'
 
 # set ansible human log
@@ -329,7 +333,7 @@ fi
 if [[ -f inventory ]]; then
   mv inventory inventory.bak
 fi
-echo "acia.vm ansible_ssh_port={{ acia_vagrant_port }} ansible_ssh_user=vagrant ansible_become_pass=vagrant" > inventory
+echo "acia.vm ansible_ssh_port={{ acia_target_port }} ansible_ssh_user=vagrant ansible_become_pass=vagrant" > inventory
 
 # append requirement to head of all serverspec files
 find . -type f -name "*_spec.rb" | while read -r currentfile; do
@@ -397,7 +401,7 @@ if [[ $KEEP_TARGET = 'true' ]]; then
   echo "<Not removing test VM as KEEP_TARGET variable in 03_RUN_TESTS job is set to 'true'>"
 else
   echo '< Removing test VM... >'
-  ssh -p '{{ acia_ssh_port }}' '{{ acia_login_user }}@{{ acia_vagrant_host }}' ansible-ci-vagrant destroy 1> /dev/null
+  ssh -p '{{ acia_ssh_port }}' '{{ acia_login_user }}@{{ acia_host }}' ansible-ci-target destroy 1> /dev/null
   echo '< ...done >'
 fi
 

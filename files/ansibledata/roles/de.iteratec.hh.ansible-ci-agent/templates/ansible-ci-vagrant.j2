@@ -8,7 +8,7 @@ cd "{{ ansible_env.HOME }}/.ansible-data/de.iteratec.hh.ansible-ci-agent/vagrant
 
 case "$1" in
   up) vagrant up ;;
-  halt) vagrant halt ;;
   destroy) vagrant destroy -f ;;
-  *) echo 'Call with vagrant option [up|halt|destroy]' ;;
+  get-ip) echo "{{ acia_vagrant_ip }}"
+  *) echo 'Call with vagrant option [up|destroy|get-ip]' ;;
 esac
