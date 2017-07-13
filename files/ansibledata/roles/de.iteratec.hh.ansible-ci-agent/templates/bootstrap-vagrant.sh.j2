@@ -1,11 +1,11 @@
 #!/bin/bash
-cat /vagrant/vagrant_authorized_key >> /home/vagrant/.ssh/authorized_keys
+echo '{{ ACI_PUBLIC_KEY }}' >> /home/vagrant/.ssh/authorized_keys
 
 # setup apt proxy cache connection
 echo "Acquire::HTTP::Proxy \"http://{{ ACIA_INTERNAL_IP }}:{{ acia_squid_port }}\";" >> /etc/apt/apt.conf.d/03autoproxy
 
 # setup CA certificate from docker proxy cache
-cp /vagrant/ca.crt /usr/local/share/ca-certificates
+echo '{{ caPemRetVal['content'] | b64decode }}' > /usr/local/share/ca-certificates
 update-ca-certificates
 echo "DOCKER_OPTS=\"--registry-mirror=https://{{ ACIA_INTERNAL_IP }}:{{ acia_dmirror_port }}\"" > /etc/default/docker
 

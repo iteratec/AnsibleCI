@@ -3,14 +3,14 @@ require 'net/ssh'
 
 set :backend, :ssh
 
-set :sudo_password, 'vagrant'
+set :sudo_password, '{{ acia_target_sudo_pass }}'
 
 host = 'acia.vm'
 
 options = Net::SSH::Config.for(host)
 
-options[:user] = 'vagrant'
-options[:password] = 'vagrant'
+options[:user] = '{{ acia_target_user }}'
+options[:password] = '{{ acia_target_sudo_pass }}'
 options[:port] = {{ acia_target_port }}
 
 set :host,        options[:host_name] || host

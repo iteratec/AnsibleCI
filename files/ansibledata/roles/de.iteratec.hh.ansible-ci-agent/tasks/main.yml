@@ -41,33 +41,31 @@
     path: "{{ WORKING_DIRECTORY }}"
     state: directory
 
-- name: copy vagrantfile
+- name: get contents of remote ca.pem
+  slurp:
+    src: "{{ DMIRROR_HOME }}/ca.pem"
+  register: caPemRetVal
+
+- name: copy vagrant files
   template:
     src: "{{ item }}.j2"
     dest: "{{ WORKING_DIRECTORY }}/{{ item }}"
   with_items:
     - Vagrantfile
-    - bootstrap.sh
+    - bootstrap-vagrant.sh
   when: acia_target_provider == 'vagrant'
 
-- name: create vagrants authorized_keys to allow access from ACI server
-  copy:
-    content: "{{ ACI_PUBLIC_KEY }}"
-    dest: "{{ WORKING_DIRECTORY }}/vagrant_authorized_key"
-    mode: 0640
+- name: copy aws files
+  template:
+    src: bootstrap-aws.sh.j2
+    dest: "{{ WORKING_DIRECTORY }}/bootstrap-aws.sh"
+  when: acia_target_provider == 'aws'
 
 - name: create dedicated SSH private key for VM
   copy:
     content: "{{ ACIA_PRIVATE_KEY }}"
     dest: "{{ WORKING_DIRECTORY }}/id_rsa"
     mode: 0600
-
-- name: copy docker mirror CA certificate to vagrant directory
-  copy:
-    src: "{{ DMIRROR_HOME }}/ca.pem"
-    dest: "{{ WORKING_DIRECTORY }}/ca.crt"
-    remote_src: yes
-    mode: 0440
 
 - name: copy ansible-ci-target script
   become: yes

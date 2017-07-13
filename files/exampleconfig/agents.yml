@@ -18,6 +18,8 @@ acia_proxy_url: None
 acia_target_provider: vagrant
 # The port of the target machine (Vagrant or AWS)
 acia_target_port: 22
+acia_target_user: vagrant
+acia_target_sudo_pass: vagrant
 
 ## see above: 'acia_target_provider: vagrant' must be set
 # The IP address of the ACIA vagrant virtual machine

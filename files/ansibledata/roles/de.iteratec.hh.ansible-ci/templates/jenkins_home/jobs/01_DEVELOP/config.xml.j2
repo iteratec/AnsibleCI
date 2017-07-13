@@ -268,7 +268,9 @@ multiJob(&apos;02_RUN_PIPELINE_{{ item.name }}&apos;) {
     {% endif %}
 }
 
+{% if aci_autostart_pipeline == true %}
 queue(&apos;02_RUN_PIPELINE_{{ item.name }}&apos;)
+{% endif %}
 {% endif %}</scriptText>
       <usingScriptText>true</usingScriptText>
       <ignoreExisting>false</ignoreExisting>
