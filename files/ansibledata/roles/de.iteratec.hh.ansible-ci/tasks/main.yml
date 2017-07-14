@@ -101,7 +101,7 @@
 
 - name: create job paths
   file:
-    path: "/var/jenkins_home/jobs/01_DEVELOP_{{ item.name }}"
+    path: "/var/jenkins_home/jobs/01_DEVELOP_{{ item.name }}_{{ item.url | basename }}"
     state: directory
   with_items:
     - "{{ aci_repository }}"
@@ -118,7 +118,7 @@
 - name: copy 01_DEVELOP tasks
   template:
     src: "jenkins_home/jobs/01_DEVELOP/config.xml.j2"
-    dest: "/var/jenkins_home/jobs/01_DEVELOP_{{ item.name }}/config.xml"
+    dest: "/var/jenkins_home/jobs/01_DEVELOP_{{ item.name }}_{{ item.url | basename }}/config.xml"
   with_items: "{{ aci_repository }}"
 
 - name: copy 11_STAGING tasks

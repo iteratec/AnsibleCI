@@ -29,6 +29,9 @@
     <submoduleCfg class="list"/>
     <extensions>
       <hudson.plugins.git.extensions.impl.CleanBeforeCheckout/>
+      <hudson.plugins.git.extensions.impl.RelativeTargetDirectory>
+        <relativeTargetDir>{{ item.url | basename }}</relativeTargetDir>
+      </hudson.plugins.git.extensions.impl.RelativeTargetDirectory>
     </extensions>
   </scm>
   {% else %}
@@ -54,8 +57,9 @@
     <javaposse.jobdsl.plugin.ExecuteDslScripts plugin="job-dsl@1.42">
       <scriptText>// process Roles
 
-def rolesDir = new java.io.File(&apos;/var/jenkins_home/workspace/develop/{{ item.name }}{{ ('/' + item.subpath_roles) if item.subpath_roles is defined else '' }}&apos;)
+def rolesDir = new java.io.File(&apos;/var/jenkins_home/workspace/develop/{{ item.name }}/{{ item.url | basename }}{{ ('/' + item.subpath_roles) if item.subpath_roles is defined else '' }}&apos;)
 
+createRoleCheck(rolesDir)
 rolesDir.eachFile() { file -&gt; createRoleCheck(file) }
 
 void createRoleCheck(File roleDir){
@@ -73,21 +77,6 @@ void createRoleCheck(File roleDir){
             }
             branch(&apos;*/{{ item.branch_develop | default('master') }}&apos;)
             clean()
-
-            configure { node -&gt;
-              node / &apos;extensions&apos; {
-                &apos;hudson.plugins.git.extensions.impl.SparseCheckoutPaths&apos; {
-                  &apos;sparseCheckoutPaths&apos; {
-                    &apos;hudson.plugins.git.extensions.impl.SparseCheckoutPath&apos; {
-           				 path(&apos;{{ (item.subpath_roles + '/') if item.subpath_roles is defined else '' }}&apos; + roleDir.getName())
-                    }
-                  }
-                }
-                &apos;hudson.plugins.git.extensions.impl.PathRestriction&apos; {
-                  includedRegions(&apos;{{ (item.subpath_roles + '/') if item.subpath_roles is defined else '' }}&apos; + roleDir.getName() + &apos;/.*&apos;)
-                }
-      		  }
-            }
         }
       }
       {% endif %}
@@ -124,8 +113,9 @@ void createRoleCheck(File roleDir){
 
 // process Playbooks
 
-def playbooksDir = new java.io.File(&apos;/var/jenkins_home/workspace/develop/{{ item.name }}{{ ('/' + item.subpath_playbooks) if item.subpath_playbooks is defined else '' }}&apos;)
+def playbooksDir = new java.io.File(&apos;/var/jenkins_home/workspace/develop/{{ item.name }}/{{ item.url | basename }}{{ ('/' + item.subpath_playbooks) if item.subpath_playbooks is defined else '' }}&apos;)
 
+createPlaybookCheck(playbooksDir)
 playbooksDir.eachFile() { file -&gt; createPlaybookCheck(file) }
 
 void createPlaybookCheck(File playbookDir){
@@ -144,21 +134,6 @@ void createPlaybookCheck(File playbookDir){
             }
             branch(&apos;*/{{ item.branch_develop | default('master') }}&apos;)
             clean()
-
-            configure { node -&gt;
-              node / &apos;extensions&apos; {
-                &apos;hudson.plugins.git.extensions.impl.SparseCheckoutPaths&apos; {
-                  &apos;sparseCheckoutPaths&apos; {
-                    &apos;hudson.plugins.git.extensions.impl.SparseCheckoutPath&apos; {
-           				 path(&apos;{{ (item.subpath_playbooks + '/') if item.subpath_playbooks is defined else '' }}&apos; + playbookDir.getName())
-                    }
-                  }
-                }
-                &apos;hudson.plugins.git.extensions.impl.PathRestriction&apos; {
-                  includedRegions(&apos;{{ (item.subpath_playbooks + '/') if item.subpath_playbooks is defined else '' }}&apos; + playbookDir.getName() + &apos;/.*&apos;)
-                }
-      		  }
-            }
         }
       }
       {% endif %}
