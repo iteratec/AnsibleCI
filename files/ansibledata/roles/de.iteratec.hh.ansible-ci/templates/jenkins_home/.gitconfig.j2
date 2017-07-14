@@ -7,3 +7,8 @@
 [http]
   proxy = {{ aci_proxy_url }}
 {% endif %}
+{% if aci_repository_use_aws_credential_helper == true %}
+[credential]
+	helper = !aws codecommit credential-helper $@
+	UseHttpPath = true
+{% endif %}

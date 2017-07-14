@@ -3,9 +3,10 @@
 - name: set proxy environment variables
   become: yes
   lineinfile:
-    dest: /etc/environment
-    regexp: "{{ item }}"
-    line: "{{ item }}={{ aci_proxy_url }}"
+    dest: /var/jenkins_home/proxyenv
+    create: yes
+    regexp: "export {{ item }}"
+    line: "export {{ item }}={{ aci_proxy_url }}"
   with_items:
     - http_proxy
     - https_proxy

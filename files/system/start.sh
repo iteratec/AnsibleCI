@@ -76,5 +76,6 @@ fi
 # initiate default startup if no other commands than jenkins parameters are passed...
 assure_prerequisites
 run_setup_playbook
+source /var/jenkins_home/proxyenv
 checkout_custom_repo
 exec java $JAVA_OPTS -jar /usr/share/jenkins/jenkins.war $JENKINS_OPTS "$@"

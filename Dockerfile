@@ -31,7 +31,8 @@ RUN easy_install pip && \
 RUN pip install setuptools \
                 ansible==2.3.1.0 \
                 docker-py==1.10.6 \
-                ansible-lint==3.4.13
+                ansible-lint==3.4.13 \
+                awscli
 
 # install required Jenkins PlugIns
 COPY files/mod_jenkins/plugins.txt /usr/share/jenkins/plugins.txt
