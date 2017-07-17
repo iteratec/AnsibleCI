@@ -8,7 +8,7 @@
       <useBuildBlocker>true</useBuildBlocker>
       <blockLevel>NODE</blockLevel>
       <scanQueueFor>DISABLED</scanQueueFor>
-      <blockingJobs>02_RUN_PIPELINE_{{ item.name }}</blockingJobs>
+      <blockingJobs>02_RUN_PIPELINE_{{ item.group }}</blockingJobs>
     </hudson.plugins.buildblocker.BuildBlockerProperty>
   </properties>
   {% if aci_install_type == 'server' %}
@@ -17,7 +17,7 @@
     <userRemoteConfigs>
       <hudson.plugins.git.UserRemoteConfig>
         <url>{{ item.url }}</url>
-        <credentialsId>{{ item.name }}</credentialsId>
+        <credentialsId>{{ item.group + (item.name | default('')) }}</credentialsId>
       </hudson.plugins.git.UserRemoteConfig>
     </userRemoteConfigs>
     <branches>
@@ -30,8 +30,15 @@
     <extensions>
       <hudson.plugins.git.extensions.impl.CleanBeforeCheckout/>
       <hudson.plugins.git.extensions.impl.RelativeTargetDirectory>
-        <relativeTargetDir>{{ item.url | basename }}</relativeTargetDir>
+        <relativeTargetDir>{{ item.name | default(item.url | basename) }}</relativeTargetDir>
       </hudson.plugins.git.extensions.impl.RelativeTargetDirectory>
+      <hudson.plugins.git.extensions.impl.CloneOption>
+        <shallow>true</shallow>
+        <noTags>false</noTags>
+        <reference></reference>
+        <depth>1</depth>
+        <honorRefspec>false</honorRefspec>
+      </hudson.plugins.git.extensions.impl.CloneOption>
     </extensions>
   </scm>
   {% else %}
@@ -52,12 +59,12 @@
   <triggers/>
   {% endif %}
   <concurrentBuild>false</concurrentBuild>
-  <customWorkspace>${JENKINS_HOME}/workspace/develop/{{ item.name }}</customWorkspace>
+  <customWorkspace>${JENKINS_HOME}/workspace/develop/{{ item.group }}</customWorkspace>
   <builders>
     <javaposse.jobdsl.plugin.ExecuteDslScripts plugin="job-dsl@1.42">
       <scriptText>// process Roles
 
-def rolesDir = new java.io.File(&apos;/var/jenkins_home/workspace/develop/{{ item.name }}/{{ item.url | basename }}{{ ('/' + item.subpath_roles) if item.subpath_roles is defined else '' }}&apos;)
+def rolesDir = new java.io.File(&apos;/var/jenkins_home/workspace/develop/{{ item.group }}/{{ item.name | default(item.url | basename) }}{{ ('/' + item.subpath_roles) if item.subpath_roles is defined else '' }}&apos;)
 
 createRoleCheck(rolesDir)
 rolesDir.eachFile() { file -&gt; createRoleCheck(file) }
@@ -66,14 +73,14 @@ void createRoleCheck(File roleDir){
   def aciDir = new java.io.File(roleDir.getAbsolutePath() + &apos;/examples&apos;)
 
   if(aciDir.exists()){
-    job(&apos;TR_{{ item.name }}_&apos; + roleDir.getName()){
+    job(&apos;TR_{{ item.group }}_&apos; + roleDir.getName()){
 
       {% if aci_install_type == 'server' %}
       scm {
         git {
             remote {
                 url(&apos;{{ item.url }}&apos;)
-                credentials(&apos;{{ item.name }}&apos;)
+                {% if item.id_rsa is defined or item.password is defined %}credentials(&apos;{{ item.group + (item.name | default('')) }}&apos;){% endif %}
             }
             branch(&apos;*/{{ item.branch_develop | default('master') }}&apos;)
             clean()
@@ -89,7 +96,7 @@ void createRoleCheck(File roleDir){
         &apos;hudson.plugins.parameterizedtrigger.BlockableBuildTriggerConfig&apos; &lt;&lt; {
           configs {
             &apos;hudson.plugins.parameterizedtrigger.PredefinedBuildParameters&apos; {
-              properties(&apos;REPO_LABEL={{ item.name }}\nARTIFACTS_PATH={{ item.subpath_roles if item.subpath_roles is defined else '.' }}\nARTIFACT_NAME=&apos; + roleDir.getName() + &apos;\nROLES_PATH={% for rpath in (item.roles_path_from | default([item.name])) %}/var/jenkins_home/workspace/develop/{{ rpath }}{{ ('/' + aci_repository|selectattr("name","equalto",rpath)|map(attribute='subpath_roles')|first) if (aci_repository|selectattr("name","equalto",rpath)|selectattr("subpath_roles","defined")|list|length) > 0 else '' }}:{% endfor %}&apos;)
+              properties(&apos;REPO_LABEL={{ item.group }}\nARTIFACTS_PATH={{ item.subpath_roles if item.subpath_roles is defined else '.' }}\nARTIFACT_NAME=&apos; + roleDir.getName() + &apos;\nROLES_PATH={% for rpath in (item.roles_path_from | default([item.group])) %}/var/jenkins_home/workspace/develop/{{ rpath }}{{ ('/' + aci_repository|selectattr("group","equalto",rpath)|map(attribute='subpath_roles')|first) if (aci_repository|selectattr("group","equalto",rpath)|selectattr("subpath_roles","defined")|list|length) > 0 else '' }}:{% endfor %}&apos;)
             }
           }
           projects(&apos;03_RUN_TESTS&apos;)
@@ -113,7 +120,7 @@ void createRoleCheck(File roleDir){
 
 // process Playbooks
 
-def playbooksDir = new java.io.File(&apos;/var/jenkins_home/workspace/develop/{{ item.name }}/{{ item.url | basename }}{{ ('/' + item.subpath_playbooks) if item.subpath_playbooks is defined else '' }}&apos;)
+def playbooksDir = new java.io.File(&apos;/var/jenkins_home/workspace/develop/{{ item.group }}/{{ item.name | default(item.url | basename) }}{{ ('/' + item.subpath_playbooks) if item.subpath_playbooks is defined else '' }}&apos;)
 
 createPlaybookCheck(playbooksDir)
 playbooksDir.eachFile() { file -&gt; createPlaybookCheck(file) }
@@ -123,14 +130,14 @@ void createPlaybookCheck(File playbookDir){
   def playbooksDefinitionFile = new java.io.File(playbookDir.getAbsolutePath() + &apos;/aci/playbooks&apos;)
 
   if(playbookFile.exists() || playbooksDefinitionFile.exists()){
-    job(&apos;TP_{{ item.name }}_&apos; + playbookDir.getName()){
+    job(&apos;TP_{{ item.group }}_&apos; + playbookDir.getName()){
 
       {% if aci_install_type == 'server' %}
       scm {
         git {
             remote {
                 url(&apos;{{ item.url }}&apos;)
-                credentials(&apos;{{ item.name }}&apos;)
+                {% if item.id_rsa is defined or item.password is defined %}credentials(&apos;{{ item.group + (item.name | default('')) }}&apos;){% endif %}
             }
             branch(&apos;*/{{ item.branch_develop | default('master') }}&apos;)
             clean()
@@ -146,7 +153,7 @@ void createPlaybookCheck(File playbookDir){
         &apos;hudson.plugins.parameterizedtrigger.BlockableBuildTriggerConfig&apos; &lt;&lt; {
           configs {
             &apos;hudson.plugins.parameterizedtrigger.PredefinedBuildParameters&apos; {
-              properties(&apos;REPO_LABEL={{ item.name }}\nARTIFACTS_PATH={{ item.subpath_playbooks if item.subpath_playbooks is defined else '.' }}\nARTIFACT_NAME=&apos; + playbookDir.getName() + &apos;\nROLES_PATH={% for rpath in (item.roles_path_from | default([item.name])) %}/var/jenkins_home/workspace/develop/{{ rpath }}{{ ('/' + aci_repository|selectattr("name","equalto",rpath)|map(attribute='subpath_roles')|first) if (aci_repository|selectattr("name","equalto",rpath)|selectattr("subpath_roles","defined")|list|length) > 0 else '' }}:{% endfor %}&apos;)
+              properties(&apos;REPO_LABEL={{ item.group }}\nARTIFACTS_PATH={{ item.subpath_playbooks if item.subpath_playbooks is defined else '.' }}\nARTIFACT_NAME=&apos; + playbookDir.getName() + &apos;\nROLES_PATH={% for rpath in (item.roles_path_from | default([item.group])) %}/var/jenkins_home/workspace/develop/{{ rpath }}{{ ('/' + aci_repository|selectattr("group","equalto",rpath)|map(attribute='subpath_roles')|first) if (aci_repository|selectattr("group","equalto",rpath)|selectattr("subpath_roles","defined")|list|length) > 0 else '' }}:{% endfor %}&apos;)
             }
           }
           projects(&apos;03_RUN_TESTS&apos;)
@@ -169,15 +176,15 @@ void createPlaybookCheck(File playbookDir){
 }
 
 {% if aci_install_type == 'server' %}
-multiJob(&apos;02_RUN_PIPELINE_{{ item.name }}&apos;) {
+multiJob(&apos;02_RUN_PIPELINE_{{ item.group }}&apos;) {
 
     {% if (aci_install_type == 'server') and ((item.branch_staging is defined) or (item.branch_live is defined)) %}
-    customWorkspace(&apos;${JENKINS_HOME}/workspace/develop/{{ item.name }}&apos;)
+    customWorkspace(&apos;${JENKINS_HOME}/workspace/develop/{{ item.group }}&apos;)
     scm {
       git {
           remote {
               url(&apos;{{ item.url }}&apos;)
-              credentials(&apos;{{ item.name }}&apos;)
+              {% if item.id_rsa is defined or item.password is defined %}credentials(&apos;{{ item.group + (item.name | default('')) }}&apos;){% endif %}
           }
           branch(&apos;*/{{ item.branch_develop | default('master') }}&apos;)
           clean()
@@ -192,7 +199,7 @@ multiJob(&apos;02_RUN_PIPELINE_{{ item.name }}&apos;) {
         	def aciDir = new java.io.File(file.getAbsolutePath() + &apos;/examples&apos;)
 
             if(aciDir.exists()){
-              phaseJob(&apos;TR_{{ item.name }}_&apos; + file.getName()){
+              phaseJob(&apos;TR_{{ item.group }}_&apos; + file.getName()){
                 configure { node -&gt;
                   node &lt;&lt; {
                     buildOnlyIfSCMChanges(true)
@@ -211,7 +218,7 @@ multiJob(&apos;02_RUN_PIPELINE_{{ item.name }}&apos;) {
             def playbooksDefinitionFile = new java.io.File(file.getAbsolutePath() + &apos;/aci/playbooks&apos;)
 
             if(playbookFile.exists() || playbooksDefinitionFile.exists()){
-              phaseJob(&apos;TP_{{ item.name }}_&apos; + file.getName()){
+              phaseJob(&apos;TP_{{ item.group }}_&apos; + file.getName()){
                 configure { node -&gt;
                   node &lt;&lt; {
                     currParams(false)
@@ -244,7 +251,7 @@ multiJob(&apos;02_RUN_PIPELINE_{{ item.name }}&apos;) {
 }
 
 {% if aci_autostart_pipeline == true %}
-queue(&apos;02_RUN_PIPELINE_{{ item.name }}&apos;)
+queue(&apos;02_RUN_PIPELINE_{{ item.group }}&apos;)
 {% endif %}
 {% endif %}</scriptText>
       <usingScriptText>true</usingScriptText>

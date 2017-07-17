@@ -1,15 +1,15 @@
 ---
 # example for development repository definition
 aci_repository:
-  - name: defaultRoles
-  - name: defaultPlaybooks
+  - group: defaultRoles
+  - group: defaultPlaybooks
     roles_path_from:
       - defaultRoles
 
 ## example for servers repository definition
 #aci_repository:
 #    # ein Referenzname
-#  - name: example
+#  - group: example
 #    # Die vollständige URL des Repositories
 #    url: "ssh://<user>@<repo-server-url>:<port>/<pathto>/<repository>.git"
 #    # Der SSH-Key zum Anmelden am Repository
@@ -26,7 +26,7 @@ aci_repository:
 #    subpath_playbooks: None
 #    # (optional) Die Repositories, aus welchem die Roles für die Playbooks kommen
 #    roles_path_from:
-#      - example # optional if roles repository is the same as playbook repository
+#      - example # optional if roles repository is the same as playbook repository group
 
 # Den Nutzer, den AnsibleCI gegenüber dem Git Repository einnimmt
 aci_repository_global_user_name: AnsibleCI

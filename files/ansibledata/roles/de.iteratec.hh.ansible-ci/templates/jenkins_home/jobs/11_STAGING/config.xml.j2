@@ -16,7 +16,7 @@
     <userRemoteConfigs>
       <hudson.plugins.git.UserRemoteConfig>
         <url>{{ item.url }}</url>
-        <credentialsId>{{ item.name }}</credentialsId>
+        <credentialsId>{{ item.group + (item.name | default('')) }}</credentialsId>
       </hudson.plugins.git.UserRemoteConfig>
     </userRemoteConfigs>
     <branches>
@@ -41,11 +41,11 @@
     </hudson.triggers.SCMTrigger>
   </triggers>
   <concurrentBuild>false</concurrentBuild>
-  <customWorkspace>${JENKINS_HOME}/workspace/staging/{{ item.name }}</customWorkspace>
+  <customWorkspace>${JENKINS_HOME}/workspace/staging/{{ item.group }}</customWorkspace>
   <builders>
     <javaposse.jobdsl.plugin.ExecuteDslScripts plugin="job-dsl@1.42">
       <scriptText>
-def playbooksDir = new java.io.File(&apos;/var/jenkins_home/workspace/staging/{{ item.name }}{{ ('/' + item.subpath_playbooks) if item.subpath_playbooks is defined else '' }}&apos;)
+def playbooksDir = new java.io.File(&apos;/var/jenkins_home/workspace/staging/{{ item.group }}/{{ item.name | default(item.url | basename) }}{{ ('/' + item.subpath_playbooks) if item.subpath_playbooks is defined else '' }}&apos;)
 
 playbooksDir.eachFile() { file -&gt; createPlaybookCheck(file) }
 
@@ -55,13 +55,13 @@ void createPlaybookCheck(File playbookDir){
   def inventoryFile = new java.io.File(playbookDir.getAbsolutePath() + &apos;/aci/pre-live/inventory&apos;)
 
   if((playbookFile.exists() || playbooksDefinitionFile.exists()) &amp;&amp; inventoryFile.exists()){
-    job(&apos;PL_{{ item.name }}_&apos; + playbookDir.getName()){
+    job(&apos;PL_{{ item.group }}_&apos; + playbookDir.getName()){
 
       scm {
         git {
             remote {
                 url(&apos;{{ item.url }}&apos;)
-                credentials(&apos;{{ item.name }}&apos;)
+                credentials(&apos;{{ item.group + (item.name | default('')) }}&apos;)
             }
             branch(&apos;*/{{ item.branch_staging }}&apos;)
             clean()
@@ -95,7 +95,7 @@ void createPlaybookCheck(File playbookDir){
         &apos;hudson.plugins.parameterizedtrigger.BlockableBuildTriggerConfig&apos; &lt;&lt; {
           configs {
             &apos;hudson.plugins.parameterizedtrigger.PredefinedBuildParameters&apos; {
-              properties(&apos;REPO_LABEL={{ item.name }}\nARTIFACTS_PATH={{ item.subpath_playbooks if item.subpath_playbooks is defined else '.' }}\nARTIFACT_NAME=&apos; + playbookDir.getName() + &apos;\nROLES_PATH={% for rpath in (item.roles_path_from | default([item.name])) %}/var/jenkins_home/workspace/staging/{{ rpath }}{{ ('/' + aci_repository|selectattr("name","equalto",rpath)|map(attribute='subpath_roles')|first) if (aci_repository|selectattr("name","equalto",rpath)|selectattr("subpath_roles","defined")|list|length) > 0 else '' }}:{% endfor %}&apos;)
+              properties(&apos;REPO_LABEL={{ item.group }}\nARTIFACTS_PATH={{ item.subpath_playbooks if item.subpath_playbooks is defined else '.' }}\nARTIFACT_NAME=&apos; + playbookDir.getName() + &apos;\nROLES_PATH={% for rpath in (item.roles_path_from | default([item.group])) %}/var/jenkins_home/workspace/staging/{{ rpath }}{{ ('/' + aci_repository|selectattr("group","equalto",rpath)|map(attribute='subpath_roles')|first) if (aci_repository|selectattr("group","equalto",rpath)|selectattr("subpath_roles","defined")|list|length) > 0 else '' }}:{% endfor %}&apos;)
             }
           }
           projects(&apos;12_DEPLOY_STAGING&apos;)

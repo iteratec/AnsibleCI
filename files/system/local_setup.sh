@@ -83,7 +83,7 @@ if [[ ! -f repositories.yml ]]; then
     read -p ' The relative subpath in the repo containing the playbooks (leave blank if root or none): ' playbookspath
     read -p ' A list of repository labels to gather roles from (leave blank if none): ' rolesfrom
 
-    echo "  - name: $repolabel" >> repositories.yml
+    echo "  - group: $repolabel" >> repositories.yml
     if [[ $rolespath ]]; then echo "    subpath_roles: $rolespath" >> repositories.yml; fi
     if [[ $playbookspath ]]; then echo "    subpath_playbooks: $playbookspath" >> repositories.yml; fi
 

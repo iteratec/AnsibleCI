@@ -35,7 +35,7 @@
 
 - name: create directories for private keys
   file:
-    path: "/var/jenkins_home/.ssh/{{ item.name }}"
+    path: "/var/jenkins_home/.ssh/{{ item.group + (item.name | default('')) }}"
     state: directory
     mode: 0700
   with_items: "{{ aci_repository }}"
@@ -50,7 +50,7 @@
 - name: copy jenkins private key for repositories
   copy:
     content: "{{ item.id_rsa }}"
-    dest: "/var/jenkins_home/.ssh/{{ item.name }}/id_rsa"
+    dest: "/var/jenkins_home/.ssh/{{ item.group + (item.name | default('')) }}/id_rsa"
     mode: 0600
   with_items: aci_repository
   when: "{{ aci_install_type == 'server' and item.id_rsa is defined }}"
@@ -101,14 +101,14 @@
 
 - name: create job paths
   file:
-    path: "/var/jenkins_home/jobs/01_DEVELOP_{{ item.name }}_{{ item.url | basename }}"
+    path: "/var/jenkins_home/jobs/01_DEVELOP_{{ item.group }}_{{ item.name | default(item.url | basename) }}"
     state: directory
   with_items:
     - "{{ aci_repository }}"
 
 - name: create job paths on server
   file:
-    path: "/var/jenkins_home/jobs/{{ item[0] }}_{{ item[1].name }}"
+    path: "/var/jenkins_home/jobs/{{ item[0] }}_{{ item[1].group }}_{{ item[1].name | default(item[1].url | basename) }}"
     state: directory
   with_nested:
     - ['11_STAGING', '21_LIVE']
@@ -118,20 +118,20 @@
 - name: copy 01_DEVELOP tasks
   template:
     src: "jenkins_home/jobs/01_DEVELOP/config.xml.j2"
-    dest: "/var/jenkins_home/jobs/01_DEVELOP_{{ item.name }}_{{ item.url | basename }}/config.xml"
+    dest: "/var/jenkins_home/jobs/01_DEVELOP_{{ item.group }}_{{ item.name | default(item.url | basename) }}/config.xml"
   with_items: "{{ aci_repository }}"
 
 - name: copy 11_STAGING tasks
   template:
     src: "jenkins_home/jobs/11_STAGING/config.xml.j2"
-    dest: "/var/jenkins_home/jobs/11_STAGING_{{ item.name }}/config.xml"
+    dest: "/var/jenkins_home/jobs/11_STAGING_{{ item.group }}_{{ item.name | default(item.url | basename) }}/config.xml"
   with_items: "{{ aci_repository }}"
   when: "{{ aci_install_type == 'server' and item.branch_staging is defined }}"
 
 - name: copy 21_LIVE tasks
   template:
     src: "jenkins_home/jobs/21_LIVE/config.xml.j2"
-    dest: "/var/jenkins_home/jobs/21_LIVE_{{ item.name }}/config.xml"
+    dest: "/var/jenkins_home/jobs/21_LIVE_{{ item.group }}_{{ item.name | default(item.url | basename) }}/config.xml"
   with_items: "{{ aci_repository }}"
   when: "{{ aci_install_type == 'server' and item.branch_live is defined }}"
 

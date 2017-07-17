@@ -133,7 +133,7 @@
     {% if repo.branch_staging is defined %}
     <listView>
       <owner class="hudson" reference="../../.."/>
-      <name>{{ repo.name }}_PL</name>
+      <name>{{ repo.group }}_PL</name>
       <filterExecutors>false</filterExecutors>
       <filterQueue>false</filterQueue>
       <properties class="hudson.model.View$PropertyList"/>
@@ -150,14 +150,14 @@
         <hudson.views.LastDurationColumn/>
         <hudson.views.BuildButtonColumn/>
       </columns>
-      <includeRegex>PL_{{ repo.name }}.*</includeRegex>
+      <includeRegex>PL_{{ repo.group }}.*</includeRegex>
       <recurse>false</recurse>
     </listView>
     {% endif %}
     {% if repo.branch_live is defined %}
     <listView>
       <owner class="hudson" reference="../../.."/>
-      <name>{{ repo.name }}_L</name>
+      <name>{{ repo.group }}_L</name>
       <filterExecutors>false</filterExecutors>
       <filterQueue>false</filterQueue>
       <properties class="hudson.model.View$PropertyList"/>
@@ -174,7 +174,7 @@
         <hudson.views.LastDurationColumn/>
         <hudson.views.BuildButtonColumn/>
       </columns>
-      <includeRegex>L_{{ repo.name }}.*</includeRegex>
+      <includeRegex>L_{{ repo.group }}.*</includeRegex>
       <recurse>false</recurse>
     </listView>
     {% endif %}
