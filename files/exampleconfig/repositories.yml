@@ -10,6 +10,8 @@ aci_repository:
 #aci_repository:
 #    # ein Referenzname
 #  - group: example
+#    # (optional) ein anderer Name als der des Repository-Ordners
+#    name: alternate-repo-name
 #    # Die vollständige URL des Repositories
 #    url: "ssh://<user>@<repo-server-url>:<port>/<pathto>/<repository>.git"
 #    # Der SSH-Key zum Anmelden am Repository

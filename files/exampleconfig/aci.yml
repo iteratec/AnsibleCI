@@ -14,8 +14,15 @@ aci_admin_name: Admin
 # is 'ACI_ADMIN_PASSWORD' in the Vault
 
 # If ACI is behind a proxy
-aci_proxy_url: None
 # also mention acia_proxy_url in agents.yml
+aci_proxy_url: None
+
+# Proxy URL for git, which would override aci_proxy_url,
+# also when beeing just an empty string:
+aci_git_proxy_url: None
+# Proxy URL for aws cli, which would override aci_proxy_url,
+# also when beeing just an empty string:
+aci_awscli_proxy_url: None
 
 # Server specific configuration
 # =============================

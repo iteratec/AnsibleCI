@@ -36,6 +36,11 @@
     user: "{{ acia_login_user }}"
     key: "{{ ACI_PUBLIC_KEY }}"
 
+- name: install vagrant proxy plugin
+  become: yes
+  command: vagrant plugin install vagrant-proxyconf
+  when: acia_proxy_url is defined
+
 - name: create working directory
   file:
     path: "{{ WORKING_DIRECTORY }}"
