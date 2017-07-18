@@ -116,6 +116,10 @@ The `*_spec.rb` files contain the Serverspec instructions, e.g. as follows:
 
 Further information of how to write Serverspec tests see on the [official website](http://serverspec.org/).
 
+## Configuring the Lint execution
+
+You can exclude files from beeing linted by adding their names each per line to following file: `<ansible-artifact-dir>/examples/aci/lint-excludes`
+
 ## Configuring the Ansible execution
 
 Sometimes you need to provide more information to Ansible when testing your roles/playbooks in ACI. The next sections will show you how.

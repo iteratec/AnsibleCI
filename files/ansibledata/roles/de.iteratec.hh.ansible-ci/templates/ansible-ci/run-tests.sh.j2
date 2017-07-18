@@ -40,6 +40,15 @@ echo "==============================="
 echo ""
 result_linting='PASSED'
 for f in $(find . -name "*.yml"); do
+    # skip lint excludes
+    if [[ -f "${EXAMPLESDIR}/aci/lint-excludes" ]]; then
+      while read exclude; do
+        if [[ "${f##*/}" == "$exclude" ]]; then
+          continue 2
+        fi
+      done < "${EXAMPLESDIR}/aci/lint-excludes"
+    fi
+
     ansible-lint{{ (' -x ' + aci_lint_skip_list|join(',')) if aci_lint_skip_list is defined and (aci_lint_skip_list|length) > 0 else '' }} "$f" 2> linterror; rc=$?
     if [[ $rc != 0 ]]; then
       grep -q "Decryption failed" linterror
@@ -79,6 +88,8 @@ else
   fi
 
   for playbook in ${PLAYBOOK_FOLDERS}; do
+
+    if [[ "$playbook" == 'aci' ]]; then continue; fi
 
     # check if there is a 'playbooks' configuration, mentioning other
     # playbook files than just 'site.yml'
