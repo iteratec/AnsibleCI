@@ -43,3 +43,12 @@ acia_aws_tags: "{Key=foo,Value=bar},{Key=unit,Value=finance}"
 acia_squid_port: 8000
 # port for the docker cache proxy
 acia_dmirror_port: 5000
+
+# Following roles are executed (without test) on every target before
+# every test. Those roles provide preparations for the test environment
+# (e.g. a proxy configuration).
+# You have to ensure that those roles are a part of your test infrasturcture.
+acia_global_roles: None
+#  - role: proxy
+#    proxy_host: proxy.my
+#    proxy_port: 3128

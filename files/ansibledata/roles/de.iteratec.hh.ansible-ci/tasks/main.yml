@@ -154,6 +154,12 @@
     - 22_DEPLOY_LIVE
   when: "{{ aci_install_type == 'server'  }}"
 
+- name: create global roles playbook
+  template:
+    src: "ansible-ci/global-roles.yml.j2"
+    dest: /var/jenkins_home/ansible-ci/global-roles.yml
+  when: acia_global_roles is defined
+
 - name: copy ansible-ci specific templates
   template:
     src: "ansible-ci/{{ item }}.j2"

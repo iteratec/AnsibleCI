@@ -150,6 +150,28 @@ function execute_ansible(){
     switch_ansible_version "$(cat ${WORKSPACE}/aci/ansible_version)"
   fi
 
+  # run global roles
+  if [[ -f "${JENKINS_HOME}/ansible-ci/global-roles.yml" && $(grep -c "role: ${ARTIFACT_NAME}" "${JENKINS_HOME}/ansible-ci/global-roles.yml") -eq 0 ]]; then
+
+    echo -e '\n'
+    echo " Run global playbook"
+    echo "---------------------"
+    echo ""
+
+    cp "${JENKINS_HOME}/ansible-ci/global-roles.yml" .
+    if [[ -f ${VAULT_PASSWORD_FILE} ]]; then
+      eval "ansible-playbook $custom_ansible_options --vault-password-file \"${VAULT_PASSWORD_FILE}\" global-roles.yml" #&> /dev/null
+    else
+      eval "ansible-playbook $custom_ansible_options global-roles.yml" #&> /dev/null
+    fi
+    rm global-roles.yml
+    echo -e '\n'
+  else
+    echo -e '\n'
+    echo " Skip global playbook as role is part of it ..."
+    echo ""
+  fi
+
   # run playbook
   ansible --version | head -n 1
   echo ''
