@@ -88,6 +88,10 @@ void createRoleCheck(File roleDir){
       }
       {% endif %}
 
+      blockOn([&apos;TR_.*',&apos;TP_.*&apos;,&apos;03_RUN_TESTS&apos;]) {
+        scanQueueFor('ALL')
+      }
+
       configure { project -&gt;
         project /
         builders /
