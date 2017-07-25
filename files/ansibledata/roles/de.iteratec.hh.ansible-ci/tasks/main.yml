@@ -160,6 +160,18 @@
     dest: /var/jenkins_home/ansible-ci/global-roles.yml
   when: acia_global_roles is defined
 
+- name: create global roles whitelist
+  copy:
+    content: "{{ acia_global_roles_whitelist | to_yaml }}"
+    dest: /var/jenkins_home/ansible-ci/global-roles-whitelist
+  when: acia_global_roles_whitelist is defined
+
+- name: create global roles blacklist
+  copy:
+    content: "{{ acia_global_roles_blacklist | to_yaml }}"
+    dest: /var/jenkins_home/ansible-ci/global-roles-blacklist
+  when: acia_global_roles_blacklist is defined
+
 - name: copy ansible-ci specific templates
   template:
     src: "ansible-ci/{{ item }}.j2"

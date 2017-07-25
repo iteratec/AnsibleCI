@@ -52,3 +52,16 @@ acia_global_roles: None
 #  - role: proxy
 #    proxy_host: proxy.my
 #    proxy_port: 3128
+
+# If in addition to acia_global_roles a whitelist is defined,
+# just for those roles the global role is executed.
+acia_global_roles_whitelist: None
+#  - roleNameA
+#  - roleNameB
+
+# If in addition to acia_global_roles a blacklist is defined,
+# for those roles the global role would not be executed.
+# The whitelist has precedence over the blacklist
+acia_global_roles_blacklist: None
+#  - roleNameX
+#  - roleNameY

@@ -110,6 +110,41 @@ function switch_ansible_version(){
   cd "$prev_dir"
 }
 
+function executeGlobalRole() {
+  # execute global roles in general
+  EXECUTE_GLOBAL_ROLE=true
+
+  # but do not execute global role when whitelist exists but does not contain artifact
+  if [[ -f "${JENKINS_HOME}/ansible-ci/global-roles-whitelist" && $(grep -c "[[ ]${ARTIFACT_NAME}[],]" "${JENKINS_HOME}/ansible-ci/global-roles-whitelist") -eq 0 ]]; then
+    EXECUTE_GLOBAL_ROLE=false
+  fi
+
+  # also do not execute global role when blacklist exists and contains this artifact (with precedence over whitelist)
+  if [[ -f "${JENKINS_HOME}/ansible-ci/global-roles-blacklist" && $(grep -c "[[ ]${ARTIFACT_NAME}[],]" "${JENKINS_HOME}/ansible-ci/global-roles-blacklist") -ne 0 ]]; then
+    EXECUTE_GLOBAL_ROLE=false
+  fi
+
+  if [[ "$EXECUTE_GLOBAL_ROLE" = 'true' && -f "${JENKINS_HOME}/ansible-ci/global-roles.yml" && $(grep -c "role: ${ARTIFACT_NAME}" "${JENKINS_HOME}/ansible-ci/global-roles.yml") -eq 0 ]]; then
+
+    echo -e '\n'
+    echo " Run global playbook"
+    echo "---------------------"
+    echo ""
+
+    cp "${JENKINS_HOME}/ansible-ci/global-roles.yml" .
+    if [[ -f ${VAULT_PASSWORD_FILE} ]]; then
+      eval "ansible-playbook $custom_ansible_options --vault-password-file \"${VAULT_PASSWORD_FILE}\" global-roles.yml" #&> /dev/null
+    else
+      eval "ansible-playbook $custom_ansible_options global-roles.yml" #&> /dev/null
+    fi
+    rm global-roles.yml
+    echo -e '\n'
+  else
+    echo -e '\n'
+    echo " Skip global playbook as role is part of it ..."
+    echo ""
+  fi
+}
 
 function execute_ansible(){
   run_name=$1
@@ -148,28 +183,6 @@ function execute_ansible(){
     switch_ansible_version "$(cat aci/ansible_version)"
   elif [[ -f "${WORKSPACE}/aci/ansible_version" ]]; then
     switch_ansible_version "$(cat ${WORKSPACE}/aci/ansible_version)"
-  fi
-
-  # run global roles
-  if [[ -f "${JENKINS_HOME}/ansible-ci/global-roles.yml" && $(grep -c "role: ${ARTIFACT_NAME}" "${JENKINS_HOME}/ansible-ci/global-roles.yml") -eq 0 ]]; then
-
-    echo -e '\n'
-    echo " Run global playbook"
-    echo "---------------------"
-    echo ""
-
-    cp "${JENKINS_HOME}/ansible-ci/global-roles.yml" .
-    if [[ -f ${VAULT_PASSWORD_FILE} ]]; then
-      eval "ansible-playbook $custom_ansible_options --vault-password-file \"${VAULT_PASSWORD_FILE}\" global-roles.yml" #&> /dev/null
-    else
-      eval "ansible-playbook $custom_ansible_options global-roles.yml" #&> /dev/null
-    fi
-    rm global-roles.yml
-    echo -e '\n'
-  else
-    echo -e '\n'
-    echo " Skip global playbook as role is part of it ..."
-    echo ""
   fi
 
   # run playbook
@@ -304,6 +317,13 @@ function run_custom_testplan(){
   done < "${TESTPLAN_FILE}"
 }
 
+waitForSSH() {
+  for i in {1..24}; do
+    nc -zvw 1 'acia.vm' '{{ acia_target_port }}' && break
+    sleep 5
+  done
+}
+
 # END DECLARE FUNCTIONS
 
 cd "${PLAYBOOKDIR}"
@@ -330,6 +350,8 @@ ssh -p '{{ acia_ssh_port }}' '{{ acia_login_user }}@{{ acia_host }}' ansible-ci-
 # register target as acia.vm in /etc/hosts
 TARGET_HOST="$(ssh -p '{{ acia_ssh_port }}' '{{ acia_login_user }}@{{ acia_host }}' ansible-ci-target get-ip)"
 (grep -q 'acia.vm' /etc/hosts && sed "s/.*acia.vm.*/${TARGET_HOST} acia.vm/g" /etc/hosts | sudo tee /etc/hosts ) || echo "${TARGET_HOST} acia.vm" | sudo tee --append /etc/hosts
+# wait for SSH on target host available
+waitForSSH
 # add target to known_hosts file
 ssh -o StrictHostKeyChecking=no -p '{{ acia_target_port }}' '{{ acia_target_user }}@acia.vm' date &> /dev/null
 echo '< ...done >'
@@ -374,6 +396,8 @@ fi
 
 STEP_RESULT='PASSED'
 PLAYBOOK_FAILED=false
+
+executeGlobalRole
 
 if [[ -f "${TESTPLAN_FILE}" ]]; then
   run_custom_testplan
