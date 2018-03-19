@@ -59,7 +59,9 @@ fi
 # create repository configuration
 if [[ ! -f repositories.yml ]]; then
 
-  echo -e "---\naci_repository:" > repositories.yml
+  docker run --rm iteratechh/ansibleci cat /example_config/repositories.yml > repositories.yml
+
+  echo -e "aci_repository:" >> repositories.yml
 
   clear
   echo 'Configuration Check [..    ]'
@@ -72,18 +74,21 @@ if [[ ! -f repositories.yml ]]; then
 
   addNextRepo=true
   while [[ $addNextRepo = 'true' ]]; do
-    unset repolabel
+    unset grouplabel
+    unset reponame
     unset rolespath
     unset playbookspath
     unset rolesfrom
     echo ''
-    read -p ' An arbitrary but unique label identifying your repository [default]: ' repolabel
-    [ -z "$repolabel" ] && var='default'
+    read -p ' An arbitrary group label identifying a group of ansible repositories [default]: ' grouplabel
+    [ -z "$grouplabel" ] && var='default'
+    read -p ' An arbitrary but unique name for the repository: ' reponame
     read -p ' The relative subpath in the repo containing the roles (leave blank if root or none): ' rolespath
     read -p ' The relative subpath in the repo containing the playbooks (leave blank if root or none): ' playbookspath
     read -p ' A list of repository labels to gather roles from (leave blank if none): ' rolesfrom
 
-    echo "  - group: $repolabel" >> repositories.yml
+    echo "  - group: $grouplabel" >> repositories.yml
+    echo "    name: $reponame" >> repositories.yml
     if [[ $rolespath ]]; then echo "    subpath_roles: $rolespath" >> repositories.yml; fi
     if [[ $playbookspath ]]; then echo "    subpath_playbooks: $playbookspath" >> repositories.yml; fi
 
@@ -114,7 +119,7 @@ if [[ ! -f conf_repository_path ]]; then
 fi
 
 # collect the local paths to the repos
-for repo in $(grep 'name: ' repositories.yml | cut -c 11-); do
+for repo in $(egrep '^\s+name: ' repositories.yml | cut -c 11-); do
   set +e; grep -q "/var/jenkins_home/workspace/develop/$repo" conf_repository_path; rc=$?; set -e
   if [[ $rc != 0 ]]; then
     if [[ "$oldbash" = 'true' ]]; then
@@ -128,10 +133,10 @@ done
 
 # configure aci vault file
 if [[ ! -f vault.yml ]]; then
-  read -s -p ' SUDO password for the user $(whoami): ' sudopass
-  echo "ACIA_SUDO_PASSWORD: $(sudopass)"  > vault.yml
+  read -s -p " SUDO password for the user $(whoami): " sudopass
+  echo "ACIA_SUDO_PASSWORD: ${sudopass}"  > vault.yml
 
-  echo "PKI_PASSWORD: $(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 32 | head -n 1)" > vault.yml
+  echo "PKI_PASSWORD: $(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 32 | head -n 1)" >> vault.yml
 
   echo 'ACI_PRIVATE_KEY: |' >> vault.yml
   ssh-keygen -t rsa -C 'AnsibleCI' -N '' -f /tmp/aci_key 1>/dev/null
@@ -159,6 +164,19 @@ if [[ ! -f vault.yml ]]; then
   ansible-vault encrypt vault.yml
 fi
 
+# copy other configuration stubs
+if [[ ! -f aci.yml ]]; then
+    docker run --rm iteratechh/ansibleci cat /example_config/aci.yml > aci.yml
+fi
+
+if [[ ! -f agents.inventory ]]; then
+    docker run --rm iteratechh/ansibleci cat /example_config/agents.inventory > agents.inventory
+fi
+
+if [[ ! -f agents.yml ]]; then
+    docker run --rm iteratechh/ansibleci cat /example_config/agents.yml > agents.yml
+fi
+
 # create .gitignore
 if [[ ! -f .gitignore ]]; then touch .gitignore; fi
 # add files to .gitignore if not already present
@@ -169,32 +187,25 @@ done
 # FINISHED CONFIGURATION - START ACI
 
 clear
-echo 'The configuration has finished.
-Copy all the content between the following lines into a script
-to start the ACI with.
 
---------------------------------------------------------------------------------
-#!/bin/bash
-
-read -s -p '"'"'Vault Password:'"'"' avp && echo '"'"''"'"'
+read -s -p 'Vault Password:' avp && echo ''
 
 docker run -d \
   --name aci \
-  -p 8081:8080 \
+  -p 24680:8080 \
   -e "ACI_VAULT_PASSWORD=$avp" \
   -e "ACIA_LOGIN_USER=$(whoami)" \
-  -v "$(pwd)/config":/ansible_config \
+  -v "$(pwd)":/ansible_config \
   $(cat conf_repository_path) \
   iteratechh/ansibleci 1>/dev/null
 
-echo '"'"''"'"'
-echo '"'"'The AnsibleCI Docker container has been started.'"'"'
-echo '"'"''"'"'You can monitor the startup and further logs with'"'"''"'"'
-echo '"'"''"'"'
-echo '"'"'    docker logs -f aci'"'"'
-echo '"'"''"'"'
-echo '"'"'After a while ACI will be available on http://localhost:8081'"'"'
 echo ''
-echo '"'"'When ACI is up and running you have to complete the setup by'"'"'
-echo '"'"'running the Jenkins job 00_SETUP_AGENTS once.'"'"'
---------------------------------------------------------------------------------'
+echo 'The AnsibleCI Docker container has been started.'
+echo 'You can monitor the startup and further logs with'
+echo ''
+echo '    docker logs -f aci'
+echo ''
+echo 'After a while ACI will be available on http://localhost:8081'
+echo ''
+echo 'When ACI is up and running you have to complete the setup by'
+echo 'running the Jenkins job 00_SETUP_AGENTS once.'

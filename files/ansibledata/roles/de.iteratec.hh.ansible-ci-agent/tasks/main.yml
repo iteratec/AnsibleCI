@@ -72,6 +72,15 @@
     dest: "{{ WORKING_DIRECTORY }}/id_rsa"
     mode: 0600
 
+- name: copy ACI private key as known hosts file to agent for later mount into docker target
+  copy:
+    content: "{{ ACI_PUBLIC_KEY }}"
+    dest: "{{ WORKING_DIRECTORY }}/acia_target_known_hosts"
+    owner: "{{ acia_target_user }}"
+    group: "{{ acia_target_user }}"
+    mode: 0600
+  when: acia_target_provider == 'docker'
+
 - name: copy ansible-ci-target script
   become: yes
   template:

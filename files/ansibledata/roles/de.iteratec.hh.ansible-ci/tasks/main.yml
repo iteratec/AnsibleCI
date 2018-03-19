@@ -31,7 +31,7 @@
     - /var/jenkins_home/jobs/00_SETUP_PRELIVE
     - /var/jenkins_home/jobs/12_DEPLOY_STAGING
     - /var/jenkins_home/jobs/22_DEPLOY_LIVE
-  when: "{{ aci_install_type == 'server' }}"
+  when: aci_install_type == 'server'
 
 - name: create directories for private keys
   file:
@@ -45,7 +45,7 @@
     content: "{{ ACI_PRIVATE_KEY }}"
     dest: /var/jenkins_home/.ssh/id_rsa
     mode: 0600
-  when: "{{ ACI_PRIVATE_KEY is defined }}"
+  when: ACI_PRIVATE_KEY is defined
 
 - name: copy jenkins private key for repositories
   copy:
@@ -53,7 +53,7 @@
     dest: "/var/jenkins_home/.ssh/{{ item.group + (item.name | default('')) }}/id_rsa"
     mode: 0600
   with_items: aci_repository
-  when: "{{ aci_install_type == 'server' and item.id_rsa is defined }}"
+  when: aci_install_type == 'server' and item.id_rsa is defined
 
 - name: copy jenkins system configuration
   template:
@@ -87,7 +87,7 @@
   with_subelements:
     - "{{ PASSWORDS }}"
     - playbooks
-  when: "{{ item[1].vault is defined }}"
+  when: item[1].vault is defined
 
 - name: create become-password-files
   copy:
@@ -97,43 +97,43 @@
   with_subelements:
     - "{{ PASSWORDS }}"
     - playbooks
-  when: "{{ aci_install_type == 'server' and item[1].become is defined }}"
+  when: aci_install_type == 'server' and item[1].become is defined
 
 - name: create job paths
   file:
-    path: "/var/jenkins_home/jobs/01_DEVELOP_{{ item.group }}_{{ item.name | default(item.url | basename) }}"
+    path: "/var/jenkins_home/jobs/01_DEVELOP_{{ item.group }}_{{ item.name if item.name is defined else (item.url | basename) }}"
     state: directory
   with_items:
     - "{{ aci_repository }}"
 
 - name: create job paths on server
   file:
-    path: "/var/jenkins_home/jobs/{{ item[0] }}_{{ item[1].group }}_{{ item[1].name | default(item[1].url | basename) }}"
+    path: "/var/jenkins_home/jobs/{{ item[0] }}_{{ item[1].group }}_{{ item[1].name if item[1].name is defined else (item[1].url | basename) }}"
     state: directory
   with_nested:
     - ['11_STAGING', '21_LIVE']
     - "{{ aci_repository }}"
-  when: "{{ aci_install_type == 'server' }}"
+  when: aci_install_type == 'server'
 
 - name: copy 01_DEVELOP tasks
   template:
     src: "jenkins_home/jobs/01_DEVELOP/config.xml.j2"
-    dest: "/var/jenkins_home/jobs/01_DEVELOP_{{ item.group }}_{{ item.name | default(item.url | basename) }}/config.xml"
+    dest: "/var/jenkins_home/jobs/01_DEVELOP_{{ item.group }}_{{ item.name if item.name is defined else (item.url | basename) }}/config.xml"
   with_items: "{{ aci_repository }}"
 
 - name: copy 11_STAGING tasks
   template:
     src: "jenkins_home/jobs/11_STAGING/config.xml.j2"
-    dest: "/var/jenkins_home/jobs/11_STAGING_{{ item.group }}_{{ item.name | default(item.url | basename) }}/config.xml"
+    dest: "/var/jenkins_home/jobs/11_STAGING_{{ item.group }}_{{ item.name if item.name is defined else (item.url | basename) }}/config.xml"
   with_items: "{{ aci_repository }}"
-  when: "{{ aci_install_type == 'server' and item.branch_staging is defined }}"
+  when: aci_install_type == 'server' and item.branch_staging is defined
 
 - name: copy 21_LIVE tasks
   template:
     src: "jenkins_home/jobs/21_LIVE/config.xml.j2"
-    dest: "/var/jenkins_home/jobs/21_LIVE_{{ item.group }}_{{ item.name | default(item.url | basename) }}/config.xml"
+    dest: "/var/jenkins_home/jobs/21_LIVE_{{ item.group }}_{{ item.name if item.name is defined else (item.url | basename) }}/config.xml"
   with_items: "{{ aci_repository }}"
-  when: "{{ aci_install_type == 'server' and item.branch_live is defined }}"
+  when: aci_install_type == 'server' and item.branch_live is defined
 
 - name: copy further jenkins tasks
   template:
@@ -152,7 +152,7 @@
     - 00_SETUP_PRELIVE
     - 12_DEPLOY_STAGING
     - 22_DEPLOY_LIVE
-  when: "{{ aci_install_type == 'server'  }}"
+  when: aci_install_type == 'server' 
 
 - name: create global roles playbook
   template:

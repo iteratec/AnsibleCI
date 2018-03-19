@@ -1,10 +1,10 @@
 ---
-# example for development repository definition
-aci_repository:
-  - group: defaultRoles
-  - group: defaultPlaybooks
-    roles_path_from:
-      - defaultRoles
+## example for development repository definition
+#aci_repository:
+#  - group: defaultRoles
+#  - group: defaultPlaybooks
+#    roles_path_from:
+#      - defaultRoles
 
 ## example for servers repository definition
 #aci_repository:

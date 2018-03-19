@@ -30,7 +30,7 @@
     <extensions>
       <hudson.plugins.git.extensions.impl.CleanBeforeCheckout/>
       <hudson.plugins.git.extensions.impl.RelativeTargetDirectory>
-        <relativeTargetDir>{{ item.name | default(item.url | basename) }}</relativeTargetDir>
+        <relativeTargetDir>{{ item.name if item.name is defined else (item.url | basename) }}</relativeTargetDir>
       </hudson.plugins.git.extensions.impl.RelativeTargetDirectory>
       <hudson.plugins.git.extensions.impl.CloneOption>
         <shallow>true</shallow>
@@ -64,7 +64,7 @@
     <javaposse.jobdsl.plugin.ExecuteDslScripts plugin="job-dsl@1.42">
       <scriptText>// process Roles
 
-def rolesDir = new java.io.File(&apos;/var/jenkins_home/workspace/develop/{{ item.group }}/{{ item.name | default(item.url | basename) }}{{ ('/' + item.subpath_roles) if item.subpath_roles is defined else '' }}&apos;)
+def rolesDir = new java.io.File(&apos;/var/jenkins_home/workspace/develop/{{ item.group }}/{{ item.name if item.name is defined else (item.url | basename) }}{{ ('/' + item.subpath_roles) if item.subpath_roles is defined else '' }}&apos;)
 
 createRoleCheck(rolesDir)
 rolesDir.eachFile() { file -&gt; createRoleCheck(file) }
@@ -122,7 +122,7 @@ void createRoleCheck(File roleDir){
 
 // process Playbooks
 
-def playbooksDir = new java.io.File(&apos;/var/jenkins_home/workspace/develop/{{ item.group }}/{{ item.name | default(item.url | basename) }}{{ ('/' + item.subpath_playbooks) if item.subpath_playbooks is defined else '' }}&apos;)
+def playbooksDir = new java.io.File(&apos;/var/jenkins_home/workspace/develop/{{ item.group }}/{{ item.name if item.name is defined else (item.url | basename) }}{{ ('/' + item.subpath_playbooks) if item.subpath_playbooks is defined else '' }}&apos;)
 
 createPlaybookCheck(playbooksDir)
 playbooksDir.eachFile() { file -&gt; createPlaybookCheck(file) }

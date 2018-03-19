@@ -23,7 +23,9 @@ function assure_prerequisites(){
     echo -e '\nFor local usage of ACI create a new, empty workspace folder, run the'
     echo 'following commands inside and follow the instructions: '
     echo ''
-    echo '  docker run -it --rm -v "$PWD":/ansible_config iteratechh/ansibleci local-setup'
+    echo '  docker run --rm iteratechh/ansibleci local-setup > aci.sh'
+    echo '  chmod +x aci.sh'
+    echo '  ./aci.sh'
     echo ''
     echo ''
     echo 'For deploying ACI on a remote server run the following command instead:'
@@ -56,7 +58,7 @@ function assure_prerequisites(){
 ## START OF SCRIPT EXECUTION
 
 if [[ "$1" = "local-setup" ]]; then
-  local_setup.sh; exit 1;
+  cat /usr/local/bin/local_setup.sh; exit 1;
 elif [[ "$1" = "server-setup" ]]; then
   server_setup.sh; exit 1;
 elif [[ "$1" = "get-public-key" ]]; then

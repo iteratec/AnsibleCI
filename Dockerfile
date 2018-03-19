@@ -44,7 +44,7 @@ RUN mkdir /etc/ansible && \
     echo 'localhost ansible_connection=local' >> /etc/ansible/hosts
 
 # (optional) use proxy for git
-RUN git config --global http.proxy http://172.24.104.188:3128
+#RUN git config --global http.proxy http://172.24.104.188:3128
 
 # setup custom Ansible installation from sources
 RUN mkdir /ansible_custom && \
